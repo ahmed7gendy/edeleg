@@ -178,7 +178,7 @@ function AdminPage() {
     }
   };
 
-  const handleToggleAccess = (userEmail, courseId, subCourseName) => {
+const handleToggleAccess = (userEmail, courseId, subCourseName) => {
     if (!selectedUser) return;
 
     const sanitizedEmail = selectedUser.email.replace(/\./g, ",");
