@@ -5,7 +5,8 @@ import "./CourseManagementPage.css";
 
 // دالة لتصحيح الإيميلات بإزالة الرموز غير المدعومة
 const sanitizeEmail = (email) => {
-  return email.replace();
+  // Replace any unsupported characters, you can customize this regex as needed
+  return email.replace(/[^a-zA-Z0-9._%+-]+/g, "");
 };
 
 // إرسال إشعار للمستخدمين المحددين
@@ -30,7 +31,6 @@ const sendNotificationToUsers = async (users, courseName) => {
     console.error("Error sending notifications:", error);
   }
 };
-
 
 function CourseManagementPage() {
   const [courses, setCourses] = useState({});
