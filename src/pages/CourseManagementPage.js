@@ -3,10 +3,7 @@ import { db, ref, set, get, remove } from "../firebase";
 import { getAuth } from "firebase/auth";
 import "./CourseManagementPage.css";
 
-// دالة لتصحيح الإيميلات بإزالة الرموز غير المدعومة
-const sanitizeEmail = (email) => {
-  return email.replace(/[.,#$\[\]]/g, ",");
-};
+
 
 // إرسال إشعار للمستخدمين المحددين
 const sendNotificationToUsers = async (users, courseName) => {
