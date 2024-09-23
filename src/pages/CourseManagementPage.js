@@ -5,7 +5,7 @@ import "./CourseManagementPage.css";
 
 // دالة لتصحيح الإيميلات بإزالة الرموز غير المدعومة
 const sanitizeEmail = (email) => {
-  return email.replace(/[\.,#\$\[\]]/g, ",");
+  return email.replace(/[.,#$\[\]]/g, ",");
 };
 
 // إرسال إشعار للمستخدمين المحددين
@@ -22,9 +22,9 @@ const sendNotificationToUsers = async (users, courseName) => {
         createdBy: auth.currentUser.email,
         fileUrl: "", // يمكنك وضع رابط هنا إذا لزم الأمر
         isRead: false,
-        message: `You have been added to the course: ${courseName}`
+        message: `You have been added to the course: ${courseName}`,
       };
-      await set(ref(notificationsRef, `/${user.email.replace(/[\.,#\$\[\]]/g, ",")}/${now}`), notification);
+      await set(ref(notificationsRef, `/${user.email.replace(/[.,#$\[\]]/g, ",")}/${now}`), notification);
     }
   } catch (error) {
     console.error("Error sending notifications:", error);
@@ -36,7 +36,6 @@ function CourseManagementPage() {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [roles, setRoles] = useState({});
   const [enrolledUsers, setEnrolledUsers] = useState([]);
   const [selectedEnrolledUsers, setSelectedEnrolledUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -75,17 +74,14 @@ function CourseManagementPage() {
         ? Object.entries(snapshot.val()).map(([email, user]) => ({
             ...user,
             email: email.replace(/,/g, "."),
-            department: user.department || "No department", // إضافة الـDepartment
+            department: user.department || "No department",
           }))
         : [];
 
       // استبعاد المستخدمين المسجلين في الدورة المحددة
       if (selectedCourse) {
         allUsers = allUsers.filter(
-          (user) =>
-            !enrolledUsers.find(
-              (enrolledUser) => enrolledUser.email === user.email
-            )
+          (user) => !enrolledUsers.find((enrolledUser) => enrolledUser.email === user.email)
         );
       }
 
@@ -94,17 +90,6 @@ function CourseManagementPage() {
       console.error("Error fetching users:", error);
     }
   }, [selectedCourse, enrolledUsers]);
-
-  // جلب الأدوار من Firebase
-  const fetchRoles = useCallback(async () => {
-    try {
-      const rolesRef = ref(db, "roles");
-      const snapshot = await get(rolesRef);
-      setRoles(snapshot.exists() ? snapshot.val() : {});
-    } catch (error) {
-      console.error("Error fetching roles:", error);
-    }
-  }, []);
 
   // جلب المستخدمين المسجلين في الدورة
   const fetchEnrolledUsers = useCallback(
@@ -115,7 +100,6 @@ function CourseManagementPage() {
         if (snapshot.exists()) {
           const allRoles = snapshot.val();
           const enrolledEmails = Object.keys(allRoles).filter((email) => {
-            const sanitizedEmail = sanitizeEmail(email);
             return allRoles[email].courses && allRoles[email].courses[courseName];
           });
 
@@ -124,9 +108,7 @@ function CourseManagementPage() {
             enrolledEmails.map(async (email) => {
               const userRef = ref(db, `users/${sanitizeEmail(email)}`);
               const userSnapshot = await get(userRef);
-              return userSnapshot.exists()
-                ? { ...userSnapshot.val(), email }
-                : null;
+              return userSnapshot.exists() ? { ...userSnapshot.val(), email } : null;
             })
           );
 
@@ -144,8 +126,7 @@ function CourseManagementPage() {
   // جلب البيانات عند تحميل الصفحة
   useEffect(() => {
     fetchCourses();
-    fetchRoles();
-  }, [fetchCourses, fetchRoles]);
+  }, [fetchCourses]);
 
   // جلب المستخدمين المسجلين عند تحديد دورة
   useEffect(() => {
@@ -162,10 +143,7 @@ function CourseManagementPage() {
       try {
         for (const user of selectedUsers) {
           const sanitizedEmail = sanitizeEmail(user.email);
-          const userCoursesRef = ref(
-            db,
-            `roles/${sanitizedEmail}/courses/${selectedCourse}`
-          );
+          const userCoursesRef = ref(db, `roles/${sanitizedEmail}/courses/${selectedCourse}`);
           await set(userCoursesRef, { hasAccess: true });
         }
         await fetchEnrolledUsers(selectedCourse);
@@ -184,10 +162,7 @@ function CourseManagementPage() {
       try {
         for (const userEmail of selectedEnrolledUsers) {
           const sanitizedEmail = sanitizeEmail(userEmail);
-          const userCoursesRef = ref(
-            db,
-            `roles/${sanitizedEmail}/courses/${selectedCourse}`
-          );
+          const userCoursesRef = ref(db, `roles/${sanitizedEmail}/courses/${selectedCourse}`);
           await remove(userCoursesRef);
         }
         await fetchEnrolledUsers(selectedCourse);
@@ -227,7 +202,7 @@ function CourseManagementPage() {
     (user) =>
       (user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (user.department && user.department.toLowerCase().includes(searchTerm.toLowerCase())) // إضافة البحث بالـDepartment
+      (user.department && user.department.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   // فلترة المستخدمين المسجلين بناءً على نص البحث
@@ -235,7 +210,7 @@ function CourseManagementPage() {
     (user) =>
       (user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (user.department && user.department.toLowerCase().includes(searchTerm.toLowerCase())) // إضافة البحث بالـDepartment
+      (user.department && user.department.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
