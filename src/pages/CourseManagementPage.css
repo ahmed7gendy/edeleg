@@ -2,6 +2,8 @@
 .course-management-page {
   padding: 20px;
   font-family: "Roboto", sans-serif;
+  max-width: 1200px; /* تعيين عرض أقصى للصفحة */
+  margin: auto; /* مركزة الصفحة */
 }
 
 .course-management-header {
@@ -14,25 +16,27 @@
 
 .course-management-header h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 2rem; /* استخدم وحدة rem للحصول على استجابة أفضل */
   color: #333;
 }
 
 /* التصميم الأساسي */
 .content {
   display: flex;
+  flex-wrap: wrap; /* للسماح بتوزيع العناصر على عدة أسطر */
   justify-content: space-between;
 }
 
 .courses-section,
 .users-section,
 .details-section {
-  width: 32%;
+  flex: 1 1 30%; /* استخدم flexbox لتوزيع الأقسام */
   padding: 15px;
   border: 1px solid #ddd;
   border-radius: 5px;
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 10px; /* إضافة مسافة بين العناصر */
 }
 
 /* تصميم قائمة الكورسات */
@@ -46,11 +50,12 @@
   border-radius: 28px;
   margin: auto;
   background-color: #333333a6;
-  padding: 30px;
+  padding: 20px; /* تقليل الحشوة لتحسين الاستجابة */
   border-bottom: 1px solid #ddd;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 1rem; /* استخدم وحدة rem */
   text-align: center;
+  transition: background-color 0.3s; /* إضافة تأثيرات عند التحويم */
 }
 
 .course-list li.selected {
@@ -68,7 +73,9 @@
 
 .user-list li {
   border-bottom: 1px solid #ddd;
+  display: flex; /* استخدام flexbox لسهولة التوزيع */
   align-items: center;
+  padding: 10px 0; /* إضافة حشوة للعناصر */
 }
 
 /* تصميم التفاصيل */
@@ -98,8 +105,9 @@
   border-radius: 5px;
   background-color: #dfe6ec;
   color: #fff;
-  font-size: 16px;
+  font-size: 1rem; /* استخدم وحدة rem */
   cursor: pointer;
+  transition: background-color 0.3s; /* إضافة تأثيرات عند التحويم */
 }
 
 .user-actions button:hover {
@@ -174,7 +182,7 @@
   padding: 10px;
   border: none;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 1rem; /* استخدم وحدة rem */
   outline: none;
 }
 
@@ -184,4 +192,17 @@
 
 .search-bar input[type="text"]:focus {
   border: 2px solid #007bff;
+}
+
+/* تحسين التوافق مع الأجهزة الصغيرة */
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column; /* ترتيب العناصر عمودياً على الشاشات الصغيرة */
+  }
+
+  .courses-section,
+  .users-section,
+  .details-section {
+    width: 100%; /* استخدام العرض الكامل على الشاشات الصغيرة */
+  }
 }
