@@ -18,7 +18,6 @@ const NotificationPopup = ({ onClose }) => {
         }
 
         const email = user.email;
-        const safeEmailPath = email.replace(/\./g, ',');
 
         // Fetch all notifications
         const notificationsRef = ref(db, `notifications`);
@@ -61,8 +60,6 @@ const NotificationPopup = ({ onClose }) => {
         throw new Error('User is not authenticated.');
       }
 
-      const email = user.email;
-      const safeEmailPath = email.replace(/\./g, ',');
       const notificationRef = ref(db, `notifications/${id}`);
 
       await update(notificationRef, { isRead: true });
