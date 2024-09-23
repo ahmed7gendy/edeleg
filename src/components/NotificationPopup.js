@@ -18,7 +18,6 @@ const NotificationPopup = ({ onClose }) => {
         }
 
         const email = user.email;
-        const safeEmailPath = email.replace(/\./g, ',');
 
         // Fetch all notifications
         const notificationsRef = ref(db, `notifications`);
@@ -30,8 +29,6 @@ const NotificationPopup = ({ onClose }) => {
           const filteredNotifications = Object.keys(notificationsData)
             .map(key => ({ id: key, ...notificationsData[key] }))
             .filter(notification => {
-              // Show notification if the user is assigned to the task (assignedEmail)
-              // or if the user created the task (createdBy)
               return (
                 (notification.assignedEmail === email && notification.message.includes('assigned')) ||
                 (notification.createdBy === email && notification.message.includes('created'))
@@ -61,8 +58,6 @@ const NotificationPopup = ({ onClose }) => {
         throw new Error('User is not authenticated.');
       }
 
-      const email = user.email;
-      const safeEmailPath = email.replace(/\./g, ',');
       const notificationRef = ref(db, `notifications/${id}`);
 
       await update(notificationRef, { isRead: true });
