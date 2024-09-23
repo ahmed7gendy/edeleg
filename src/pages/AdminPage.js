@@ -234,11 +234,7 @@ function AdminPage() {
     await fetchData();
   };
 
-  const getSubCourseName = (courseId, subCourseId) => {
-    return (
-      courses[courseId]?.subCourses?.[subCourseId]?.name || "Unknown SubCourse"
-    );
-  };
+
 
   return (
     <div className="admin-page">
