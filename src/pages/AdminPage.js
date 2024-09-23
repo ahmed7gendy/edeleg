@@ -177,6 +177,7 @@ function AdminPage() {
       console.error("Error updating course access:", error);
     }
   };
+/* eslint-enable no-unused-vars */
 
 const handleToggleAccess = (userEmail, courseId, subCourseName) => {
     if (!selectedUser) return;
