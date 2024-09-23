@@ -5,8 +5,7 @@ import "./CourseManagementPage.css";
 
 // دالة لتصحيح الإيميلات بإزالة الرموز غير المدعومة
 const sanitizeEmail = (email) => {
-  // Replace any unsupported characters, you can customize this regex as needed
-  return email.replace(/[^a-zA-Z0-9._%+-]+/g, "");
+  return email.replace();
 };
 
 // إرسال إشعار للمستخدمين المحددين
@@ -23,14 +22,15 @@ const sendNotificationToUsers = async (users, courseName) => {
         createdBy: auth.currentUser.email,
         fileUrl: "",
         isRead: false,
-        message: `You have been added to the course: ${courseName}`,
+        message: You have been added to the course: ${courseName},
       };
-      await set(ref(notificationsRef, `/${sanitizeEmail(user.email)}/${now}`), notification);
+      await set(ref(notificationsRef, /${sanitizeEmail(user.email)}/${now}), notification);
     }
   } catch (error) {
     console.error("Error sending notifications:", error);
   }
 };
+
 
 function CourseManagementPage() {
   const [courses, setCourses] = useState({});
@@ -104,7 +104,7 @@ function CourseManagementPage() {
 
           const enrolledUsersData = await Promise.all(
             enrolledEmails.map(async (email) => {
-              const userRef = ref(db, `users/${sanitizeEmail(email)}`);
+              const userRef = ref(db, users/${sanitizeEmail(email)});
               const userSnapshot = await get(userRef);
               return userSnapshot.exists()
                 ? { ...userSnapshot.val(), email }
@@ -142,7 +142,7 @@ function CourseManagementPage() {
           const sanitizedEmail = sanitizeEmail(user.email);
           const userCoursesRef = ref(
             db,
-            `roles/${sanitizedEmail}/courses/${selectedCourse}`
+            roles/${sanitizedEmail}/courses/${selectedCourse}
           );
           await set(userCoursesRef, { hasAccess: true });
         }
@@ -166,7 +166,7 @@ function CourseManagementPage() {
           const sanitizedEmail = sanitizeEmail(userEmail);
           const userCoursesRef = ref(
             db,
-            `roles/${sanitizedEmail}/courses/${selectedCourse}`
+            roles/${sanitizedEmail}/courses/${selectedCourse}
           );
           await remove(userCoursesRef);
         }
@@ -316,4 +316,4 @@ function CourseManagementPage() {
   );
 }
 
-export default CourseManagementPage;
+export default CourseManagementPage; 
