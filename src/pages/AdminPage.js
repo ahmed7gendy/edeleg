@@ -244,7 +244,7 @@ const handleToggleAccess = (userEmail, courseId, subCourseName) => {
   const handleRefreshData = async () => {
     await fetchData();
   };
-
+/* eslint-disable no-unused-vars */
  const getSubCourseName = (courseId, subCourseId) => {
   return courses[courseId]?.subCourses?.[subCourseId]?.name || "Unknown SubCourse";
 };
