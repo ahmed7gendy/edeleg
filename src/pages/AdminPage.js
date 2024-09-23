@@ -178,18 +178,7 @@ function AdminPage() {
     }
   };
 
-  const handleToggleAccess = (userEmail, courseId, subCourseName) => {
-    if (!selectedUser) return;
 
-    const sanitizedEmail = selectedUser.email.replace(/\./g, ",");
-    const currentCourseAccess =
-      roles[sanitizedEmail]?.courses?.[courseId] || {};
-    const hasAccess = subCourseName
-      ? !!currentCourseAccess[subCourseName]?.hasAccess
-      : !!currentCourseAccess.hasAccess;
-
-    handleUpdateCourseAccess(userEmail, courseId, subCourseName, !hasAccess);
-  };
 
   const handleDisableUser = async (userEmail) => {
     try {
