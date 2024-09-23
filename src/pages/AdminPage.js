@@ -92,11 +92,7 @@ function AdminPage() {
   const handleAddUser = async () => {
     if (newUserEmail && newUserPassword && newUserName) {
       try {
-        await createUserWithEmailAndPassword(
-          auth,
-          newUserEmail,
-          newUserPassword
-        );
+        await createUserWithEmailAndPassword(auth, newUserEmail, newUserPassword);
 
         const sanitizedEmail = newUserEmail.replace(/\./g, ",");
         const rolesRef = ref(db, `roles/${sanitizedEmail}`);
@@ -157,9 +153,7 @@ function AdminPage() {
       const userCoursesRef = ref(db, `roles/${sanitizedEmail}/courses`);
 
       const userCoursesSnapshot = await get(userCoursesRef);
-      const userCourses = userCoursesSnapshot.exists()
-        ? userCoursesSnapshot.val()
-        : {};
+      const userCourses = userCoursesSnapshot.exists() ? userCoursesSnapshot.val() : {};
 
       if (!userCourses[courseId]) {
         userCourses[courseId] = {};
@@ -178,7 +172,17 @@ function AdminPage() {
     }
   };
 
+  const handleToggleAccess = (userEmail, courseId, subCourseName) => {
+    if (!selectedUser) return;
 
+    const sanitizedEmail = selectedUser.email.replace(/\./g, ",");
+    const currentCourseAccess = roles[sanitizedEmail]?.courses?.[courseId] || {};
+    const hasAccess = subCourseName
+      ? !!currentCourseAccess[subCourseName]?.hasAccess
+      : !!currentCourseAccess.hasAccess;
+
+    handleUpdateCourseAccess(userEmail, courseId, subCourseName, !hasAccess);
+  };
 
   const handleDisableUser = async (userEmail) => {
     try {
@@ -234,7 +238,11 @@ function AdminPage() {
     await fetchData();
   };
 
-
+  const getSubCourseName = (courseId, subCourseId) => {
+    return (
+      courses[courseId]?.subCourses?.[subCourseId]?.name || "Unknown SubCourse"
+    );
+  };
 
   return (
     <div className="admin-page">
@@ -297,6 +305,22 @@ function AdminPage() {
                   <option value="Disabled">Disabled</option>
                 </select>
               </p>
+
+              <h3>Course Access</h3>
+              {Object.entries(courses).map(([courseId, course]) => (
+                <div key={courseId}>
+                  <h4>{course.name}</h4>
+                  {course.subCourses && Object.entries(course.subCourses).map(([subCourseId, subCourse]) => (
+                    <div key={subCourseId}>
+                      <span>{subCourse.name}</span>
+                      <button onClick={() => handleToggleAccess(selectedUser.email, courseId, subCourse.name)}>
+                        Toggle Access
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ))}
+
               <button onClick={() => handleDisableUser(selectedUser.email)}>
                 Disable User
               </button>
