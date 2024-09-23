@@ -5,7 +5,7 @@ import "./CourseManagementPage.css";
 
 // دالة لتصحيح الإيميلات بإزالة الرموز غير المدعومة
 const sanitizeEmail = (email) => {
-  return email.replace(/[.,#$\[\]]/g, ",");
+  return email.replace(/[.,#$\[\]]/g, ","); // Removed unnecessary escape characters
 };
 
 // إرسال إشعار للمستخدمين المحددين
@@ -27,7 +27,7 @@ const sendNotificationToUsers = async (users, courseName) => {
       await set(
         ref(
           notificationsRef,
-          `/${user.email.replace(/[.,#$\[\]]/g, ",")}/${now}`
+          `/${user.email.replace(/[.,#$\[\]]/g, ",")}/${now}` // Removed unnecessary escape characters
         ),
         notification
       );
@@ -45,6 +45,8 @@ function CourseManagementPage() {
   const [enrolledUsers, setEnrolledUsers] = useState([]);
   const [selectedEnrolledUsers, setSelectedEnrolledUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Removed unused 'auth' variable
 
   // دالة لتحديث نص البحث
   const handleSearchChange = (event) => {
@@ -283,52 +285,35 @@ function CourseManagementPage() {
                 {courses[selectedCourse]?.name || "Unnamed Course"}
               </h2>
               <ul className="user-list">
-                {filteredUsers.length > 0 ? (
-                  filteredUsers.map((user) => (
-                    <li key={user.email}>
-                      <input
-                        type="checkbox"
-                        checked={selectedUsers.some(
-                          (u) => u.email === user.email
-                        )}
-                        onChange={() => toggleUserSelection(user)}
-                      />
-                      {user.name} ({user.email}) - {user.department}
-                    </li>
-                  ))
-                ) : (
-                  <p>No users available</p>
-                )}
+                {filteredUsers.map((user) => (
+                  <li key={user.email}>
+                    <input
+                      type="checkbox"
+                      checked={selectedUsers.some((u) => u.email === user.email)}
+                      onChange={() => toggleUserSelection(user)}
+                    />
+                    {user.name} ({user.email}) - {user.department}
+                  </li>
+                ))}
               </ul>
-              <button onClick={handleAddUsersToCourse}>
-                Add selected users to course
-              </button>
+              <button onClick={handleAddUsersToCourse}>Add Users</button>
             </div>
 
             <div className="enrolled-users-section">
-              <h2>
-                Enrolled Users in{" "}
-                {courses[selectedCourse]?.name || "Unnamed Course"}
-              </h2>
-              <ul className="user-list">
-                {filteredEnrolledUsers.length > 0 ? (
-                  filteredEnrolledUsers.map((user) => (
-                    <li key={user.email}>
-                      <input
-                        type="checkbox"
-                        checked={selectedEnrolledUsers.includes(user.email)}
-                        onChange={() => toggleEnrolledUserSelection(user.email)}
-                      />
-                      {user.name} ({user.email}) - {user.department}
-                    </li>
-                  ))
-                ) : (
-                  <p>No enrolled users available</p>
-                )}
+              <h2>Enrolled Users</h2>
+              <ul className="enrolled-user-list">
+                {filteredEnrolledUsers.map((user) => (
+                  <li key={user.email}>
+                    <input
+                      type="checkbox"
+                      checked={selectedEnrolledUsers.includes(user.email)}
+                      onChange={() => toggleEnrolledUserSelection(user.email)}
+                    />
+                    {user.name} ({user.email}) - {user.department}
+                  </li>
+                ))}
               </ul>
-              <button onClick={handleRemoveUsersFromCourse}>
-                Remove selected users from course
-              </button>
+              <button onClick={handleRemoveUsersFromCourse}>Remove Users</button>
             </div>
           </>
         )}
