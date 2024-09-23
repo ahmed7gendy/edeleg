@@ -5,7 +5,7 @@ import "./CourseManagementPage.css";
 
 // دالة لتصحيح الإيميلات بإزالة الرموز غير المدعومة
 const sanitizeEmail = (email) => {
-  return email.replace(/[.,#$\[\]]/g, ","); // Removed unnecessary escape characters
+  return email.replace(/[.,#$\[\]]/g, ",");
 };
 
 // إرسال إشعار للمستخدمين المحددين
@@ -24,13 +24,7 @@ const sendNotificationToUsers = async (users, courseName) => {
         isRead: false,
         message: `You have been added to the course: ${courseName}`,
       };
-      await set(
-        ref(
-          notificationsRef,
-          `/${user.email.replace(/[.,#$\[\]]/g, ",")}/${now}` // Removed unnecessary escape characters
-        ),
-        notification
-      );
+      await set(ref(notificationsRef, `/${sanitizeEmail(user.email)}/${now}`), notification);
     }
   } catch (error) {
     console.error("Error sending notifications:", error);
@@ -45,8 +39,6 @@ function CourseManagementPage() {
   const [enrolledUsers, setEnrolledUsers] = useState([]);
   const [selectedEnrolledUsers, setSelectedEnrolledUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Removed unused 'auth' variable
 
   // دالة لتحديث نص البحث
   const handleSearchChange = (event) => {
@@ -133,7 +125,7 @@ function CourseManagementPage() {
         console.error("Error fetching enrolled users:", error);
       }
     },
-    [] // Removed selectedCourse from dependencies
+    []
   );
 
   // جلب البيانات عند تحميل الصفحة
