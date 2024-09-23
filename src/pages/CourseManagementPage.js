@@ -20,7 +20,7 @@ const sendNotificationToUsers = async (users, courseName) => {
         assignedEmail: user.email,
         createdAt: now,
         createdBy: auth.currentUser.email,
-        fileUrl: "", // يمكنك وضع رابط هنا إذا لزم الأمر
+        fileUrl: "",
         isRead: false,
         message: `You have been added to the course: ${courseName}`,
       };
@@ -40,12 +40,10 @@ function CourseManagementPage() {
   const [selectedEnrolledUsers, setSelectedEnrolledUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // دالة لتحديث نص البحث
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
 
-  // جلب قائمة الدورات الرئيسية من Firebase
   const fetchCourses = useCallback(async () => {
     try {
       const coursesRef = ref(db, "courses/mainCourses");
@@ -63,7 +61,6 @@ function CourseManagementPage() {
     }
   }, []);
 
-  // جلب قائمة المستخدمين من Firebase
   const fetchUsers = useCallback(async () => {
     try {
       const usersRef = ref(db, "users");
@@ -76,7 +73,6 @@ function CourseManagementPage() {
           }))
         : [];
 
-      // استبعاد المستخدمين المسجلين في الدورة المحددة
       if (selectedCourse) {
         allUsers = allUsers.filter(
           (user) =>
@@ -92,7 +88,6 @@ function CourseManagementPage() {
     }
   }, [selectedCourse, enrolledUsers]);
 
-  // جلب المستخدمين المسجلين في الدورة
   const fetchEnrolledUsers = useCallback(
     async (courseName) => {
       try {
@@ -106,7 +101,6 @@ function CourseManagementPage() {
             );
           });
 
-          // جلب معلومات المستخدمين المسجلين
           const enrolledUsersData = await Promise.all(
             enrolledEmails.map(async (email) => {
               const userRef = ref(db, `users/${sanitizeEmail(email)}`);
@@ -128,12 +122,10 @@ function CourseManagementPage() {
     []
   );
 
-  // جلب البيانات عند تحميل الصفحة
   useEffect(() => {
     fetchCourses();
   }, [fetchCourses]);
 
-  // جلب المستخدمين المسجلين عند تحديد دورة
   useEffect(() => {
     if (selectedCourse) {
       fetchEnrolledUsers(selectedCourse).then(() => {
@@ -142,7 +134,6 @@ function CourseManagementPage() {
     }
   }, [selectedCourse, fetchEnrolledUsers, fetchUsers]);
 
-  // إضافة المستخدمين للدورة
   const handleAddUsersToCourse = async () => {
     if (selectedCourse && selectedUsers.length > 0) {
       try {
@@ -159,7 +150,7 @@ function CourseManagementPage() {
         sendNotificationToUsers(
           selectedUsers,
           courses[selectedCourse]?.name || "Unnamed Course"
-        ); // إرسال الإشعارات
+        );
         setSelectedUsers([]);
       } catch (error) {
         console.error("Error adding users to course:", error);
@@ -167,7 +158,6 @@ function CourseManagementPage() {
     }
   };
 
-  // إزالة المستخدمين من الدورة
   const handleRemoveUsersFromCourse = async () => {
     if (selectedCourse && selectedEnrolledUsers.length > 0) {
       try {
@@ -188,12 +178,10 @@ function CourseManagementPage() {
     }
   };
 
-  // معالجة اختيار الدورة
   const handleCourseSelection = (courseId) => {
     setSelectedCourse(courseId);
   };
 
-  // تحديث تحديد المستخدمين عبر checkbox
   const toggleUserSelection = (user) => {
     setSelectedUsers((prevSelected) =>
       prevSelected.some((u) => u.email === user.email)
@@ -202,7 +190,6 @@ function CourseManagementPage() {
     );
   };
 
-  // تحديث تحديد المستخدمين المسجلين عبر checkbox
   const toggleEnrolledUserSelection = (userEmail) => {
     setSelectedEnrolledUsers((prevSelected) =>
       prevSelected.includes(userEmail)
@@ -211,7 +198,6 @@ function CourseManagementPage() {
     );
   };
 
-  // فلترة المستخدمين بناءً على نص البحث
   const filteredUsers = users.filter(
     (user) =>
       (user.name &&
@@ -222,7 +208,6 @@ function CourseManagementPage() {
         user.department.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // فلترة المستخدمين المسجلين بناءً على نص البحث
   const filteredEnrolledUsers = enrolledUsers.filter(
     (user) =>
       (user.name &&
@@ -239,7 +224,6 @@ function CourseManagementPage() {
         <h1>Course Management</h1>
       </header>
 
-      {/* إضافة شريط البحث */}
       <div className="search-bar">
         <input
           type="text"
@@ -277,35 +261,52 @@ function CourseManagementPage() {
                 {courses[selectedCourse]?.name || "Unnamed Course"}
               </h2>
               <ul className="user-list">
-                {filteredUsers.map((user) => (
-                  <li key={user.email}>
-                    <input
-                      type="checkbox"
-                      checked={selectedUsers.some((u) => u.email === user.email)}
-                      onChange={() => toggleUserSelection(user)}
-                    />
-                    {user.name} ({user.email}) - {user.department}
-                  </li>
-                ))}
+                {filteredUsers.length > 0 ? (
+                  filteredUsers.map((user) => (
+                    <li key={user.email}>
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.some(
+                          (u) => u.email === user.email
+                        )}
+                        onChange={() => toggleUserSelection(user)}
+                      />
+                      {user.name} ({user.email}) - {user.department}
+                    </li>
+                  ))
+                ) : (
+                  <p>No users available</p>
+                )}
               </ul>
-              <button onClick={handleAddUsersToCourse}>Add Users</button>
+              <button onClick={handleAddUsersToCourse}>
+                Add selected users to course
+              </button>
             </div>
 
             <div className="enrolled-users-section">
-              <h2>Enrolled Users</h2>
-              <ul className="enrolled-user-list">
-                {filteredEnrolledUsers.map((user) => (
-                  <li key={user.email}>
-                    <input
-                      type="checkbox"
-                      checked={selectedEnrolledUsers.includes(user.email)}
-                      onChange={() => toggleEnrolledUserSelection(user.email)}
-                    />
-                    {user.name} ({user.email}) - {user.department}
-                  </li>
-                ))}
+              <h2>
+                Enrolled Users in{" "}
+                {courses[selectedCourse]?.name || "Unnamed Course"}
+              </h2>
+              <ul className="user-list">
+                {filteredEnrolledUsers.length > 0 ? (
+                  filteredEnrolledUsers.map((user) => (
+                    <li key={user.email}>
+                      <input
+                        type="checkbox"
+                        checked={selectedEnrolledUsers.includes(user.email)}
+                        onChange={() => toggleEnrolledUserSelection(user.email)}
+                      />
+                      {user.name} ({user.email}) - {user.department}
+                    </li>
+                  ))
+                ) : (
+                  <p>No enrolled users available</p>
+                )}
               </ul>
-              <button onClick={handleRemoveUsersFromCourse}>Remove Users</button>
+              <button onClick={handleRemoveUsersFromCourse}>
+                Remove selected users from course
+              </button>
             </div>
           </>
         )}
