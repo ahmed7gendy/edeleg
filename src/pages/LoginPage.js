@@ -12,7 +12,6 @@ function LoginPage() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const { user } = useAuth(); // Use AuthContext
   const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
