@@ -2,7 +2,6 @@ import React from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
-import LoginPage from "./pages/LoginPage";
 import WelcomePage from "./pages/WelcomePage";
 import AdminPage from "./pages/AdminPage";
 import CoursePage from "./pages/CoursePage";
@@ -41,8 +40,7 @@ const App = () => {
       <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
       <main className="main-content" onClick={closeSidebar}>
         <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/welcome" element={<WelcomePage />} />
+          <Route path="/" element={<WelcomePage />} />
           <Route path="/courses" element={<CoursePage />} />
           <Route path="/courses/:courseId" element={<CourseDetailPage />} />
           <Route path="/sub-courses/:subCourseId" element={<SubCourseDetailPage />} />
