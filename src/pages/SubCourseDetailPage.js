@@ -109,7 +109,7 @@ const SubCourseDetailPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!mediaEnded && subCourse.videos) {
+    if (!mediaEnded && subCourse?.videos) {
       alert("Please watch all media until the end before submitting.");
       return;
     }
@@ -119,7 +119,7 @@ const SubCourseDetailPage = () => {
     // Initialize correct answers count
     let correctCount = 0;
 
-    if (subCourse.questions) {
+    if (subCourse?.questions) {
       Object.values(subCourse.questions).forEach((question, index) => {
         const userAnswer = userAnswers[index];
         const correctAnswers = question.answers
@@ -172,17 +172,17 @@ const SubCourseDetailPage = () => {
   const currentMediaKey = mediaKeys[currentMediaIndex];
   const currentMedia = currentMediaKey
     ? {
-        type: subCourse.images[currentMediaKey]
+        type: subCourse.images?.[currentMediaKey]
           ? "image"
-          : subCourse.pdfs[currentMediaKey]
+          : subCourse.pdfs?.[currentMediaKey]
           ? "pdf"
-          : subCourse.videos[currentMediaKey]
+          : subCourse.videos?.[currentMediaKey]
           ? "video"
           : null,
         url:
-          subCourse.images[currentMediaKey] ||
-          subCourse.pdfs[currentMediaKey] ||
-          subCourse.videos[currentMediaKey],
+          subCourse.images?.[currentMediaKey] ||
+          subCourse.pdfs?.[currentMediaKey] ||
+          subCourse.videos?.[currentMediaKey],
       }
     : null;
 
