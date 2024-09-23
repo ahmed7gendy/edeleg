@@ -5,7 +5,7 @@ import "./CourseManagementPage.css";
 
 // دالة لتصحيح الإيميلات بإزالة الرموز غير المدعومة
 const sanitizeEmail = (email) => {
-  return email.replace(/[.,#$\[\]]/g, ",");
+  return email.replace();
 };
 
 // إرسال إشعار للمستخدمين المحددين
