@@ -31,6 +31,7 @@ const sendNotificationToUsers = async (users, courseName) => {
   }
 };
 
+
 function CourseManagementPage() {
   const [courses, setCourses] = useState({});
   const [selectedCourse, setSelectedCourse] = useState(null);
