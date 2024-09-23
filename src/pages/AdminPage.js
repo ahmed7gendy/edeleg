@@ -312,7 +312,7 @@ function AdminPage() {
                   <h4>{course.name}</h4>
                   {course.subCourses && Object.entries(course.subCourses).map(([subCourseId, subCourse]) => (
                     <div key={subCourseId}>
-                      <span>{subCourse.name}</span>
+                      <span>{getSubCourseName(courseId, subCourseId)}</span>
                       <button onClick={() => handleToggleAccess(selectedUser.email, courseId, subCourse.name)}>
                         Toggle Access
                       </button>
