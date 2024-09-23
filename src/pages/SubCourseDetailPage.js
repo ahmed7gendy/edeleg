@@ -116,7 +116,6 @@ const SubCourseDetailPage = () => {
 
     const totalTime = endTime ? (endTime - startTime) / 1000 : 0; // Time in seconds
 
-    // Initialize correct answers count
     let correctCount = 0;
 
     if (subCourse?.questions) {
@@ -131,7 +130,6 @@ const SubCourseDetailPage = () => {
       });
     }
 
-    // Calculate success percentage
     let percentageSuccess =
       totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0;
 
@@ -171,74 +169,61 @@ const SubCourseDetailPage = () => {
 
   const currentMediaKey = mediaKeys[currentMediaIndex];
   const currentMedia = currentMediaKey
-    ? {
-        type: subCourse.images?.[currentMediaKey]
-          ? "image"
-          : subCourse.pdfs?.[currentMediaKey]
-          ? "pdf"
-          : subCourse.videos?.[currentMediaKey]
-          ? "video"
-          : null,
-        url:
-          subCourse.images?.[currentMediaKey] ||
-          subCourse.pdfs?.[currentMediaKey] ||
-          subCourse.videos?.[currentMediaKey],
-      }
+    ? subCourse.images?.[currentMediaKey] ||
+      subCourse.pdfs?.[currentMediaKey] ||
+      subCourse.videos?.[currentMediaKey]
+    : null;
+
+  const currentQuestion = subCourse?.questions
+    ? Object.values(subCourse.questions)[currentQuestionIndex]
     : null;
 
   return (
     <div className="sub-course-detail-container">
-      <h1>{subCourse.name}</h1>
+      <h1>{subCourse.title}</h1>
+      <p>{subCourse.description}</p>
 
-      {/* Display Media */}
-      {currentMedia && (
-        <div className="media-container">
+      <div className="media-container">
+        {currentMedia && (
           <div className="media-content">
-            {currentMedia.type === "video" ? (
-              <video
-                ref={mediaRef}
-                autoPlay
-                playsInline
-                src={currentMedia.url}
-                type="video/mp4"
-                onEnded={handleMediaEnd}
-                controls
-              >
-                Your browser does not support the video tag.
-              </video>
-            ) : currentMedia.type === "pdf" ? (
+            {subCourse.images?.[currentMediaKey] && (
+              <img src={subCourse.images[currentMediaKey]} alt="Course Media" />
+            )}
+            {subCourse.pdfs?.[currentMediaKey] && (
               <iframe
-                src={currentMedia.url}
-                width="100%"
-                height="600px"
-                title="PDF"
-              >
-                Your browser does not support PDFs.{" "}
-                <a href={currentMedia.url}>Download the PDF</a>.
-              </iframe>
-            ) : currentMedia.type === "image" ? (
-              <img src={currentMedia.url} alt="Course Content" width="100%" />
-            ) : null}
+                src={subCourse.pdfs[currentMediaKey]}
+                title="PDF Document"
+                frameBorder="0"
+                style={{ width: "100%", height: "500px" }}
+              ></iframe>
+            )}
+            {subCourse.videos?.[currentMediaKey] && (
+              <div className="video-container">
+                <video
+                  ref={mediaRef}
+                  src={subCourse.videos[currentMediaKey]}
+                  controls
+                  onEnded={handleMediaEnd}
+                ></video>
+              </div>
+            )}
           </div>
-          <div className="media-navigation">
-            <button
-              onClick={handlePrevMedia}
-              disabled={currentMediaIndex === 0}
-            >
-              Previous Media
-            </button>
-            <button
-              onClick={handleNextMedia}
-              disabled={currentMediaIndex >= mediaKeys.length - 1}
-            >
-              Next Media
-            </button>
-          </div>
-        </div>
-      )}
+        )}
 
-      {/* Display Questions */}
-      {subCourse.questions && totalQuestions > 0 && (
+        <div className="media-navigation">
+          <button onClick={handlePrevMedia} disabled={currentMediaIndex === 0}>
+            Previous Media
+          </button>
+          <button
+            onClick={handleNextMedia}
+            disabled={currentMediaIndex === mediaKeys.length - 1}
+          >
+            Next Media
+          </button>
+        </div>
+      </div>
+
+      {currentQuestion && (
         <div className="question-container">
           <div className="question-navigation">
             <button
@@ -247,69 +232,47 @@ const SubCourseDetailPage = () => {
             >
               Previous Question
             </button>
-            <span>
-              Question {currentQuestionIndex + 1} of {totalQuestions}
-            </span>
             <button
               onClick={handleNextQuestion}
-              disabled={currentQuestionIndex >= totalQuestions - 1}
+              disabled={currentQuestionIndex === totalQuestions - 1}
             >
               Next Question
             </button>
           </div>
-          <div
-            className={`question ${
-              userAnswers[currentQuestionIndex] === undefined
-                ? "unanswered"
-                : ""
-            }`}
-          >
-            <p>
-              {Object.values(subCourse.questions)[currentQuestionIndex].text}
-            </p>
-            {Object.values(subCourse.questions)[
-              currentQuestionIndex
-            ].answers.map((answer, idx) => (
-              <div key={idx} className="answer-option">
-                <input
-                  type="radio"
-                  name={`question-${currentQuestionIndex}`}
-                  value={answer.text}
-                  onChange={() =>
-                    handleAnswerChange(currentQuestionIndex, answer.text)
-                  }
-                  checked={userAnswers[currentQuestionIndex] === answer.text}
-                />
-                <label>{answer.text}</label>
+
+          <div className="question">
+            <h3>{currentQuestion.text}</h3>
+            {currentQuestion.answers.map((answer, index) => (
+              <div className="answer-option" key={index}>
+                <label>
+                  <input
+                    type="radio"
+                    name={`question-${currentQuestionIndex}`}
+                    value={answer.text}
+                    checked={userAnswers[currentQuestionIndex] === answer.text}
+                    onChange={() =>
+                      handleAnswerChange(currentQuestionIndex, answer.text)
+                    }
+                  />
+                  {answer.text}
+                </label>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      <button onClick={handleSubmit} disabled={subCourse.videos && !mediaEnded}>
-        Submit
-      </button>
+      <div className="submission-result">
+        {submissionResult && (
+          <>
+            <h2>Submission Result</h2>
+            <p>Time spent: {submissionResult.totalTime} seconds</p>
+            <p>Percentage success: {submissionResult.percentageSuccess}%</p>
+          </>
+        )}
+      </div>
 
-      {/* Display Submission Result */}
-      {submissionResult && (
-        <div className="submission-result">
-          <h2>Submission Result</h2>
-          <p>
-            <strong>Percentage Success:</strong>{" "}
-            {submissionResult.percentageSuccess
-              ? submissionResult.percentageSuccess.toFixed(2)
-              : 0}
-            %
-          </p>
-          <p>
-            <strong>Total Time Spent:</strong>{" "}
-            {submissionResult.totalTime
-              ? `${submissionResult.totalTime.toFixed(2)} seconds`
-              : "N/A"}
-          </p>
-        </div>
-      )}
+      <button onClick={handleSubmit}>Submit</button>
     </div>
   );
 };
