@@ -46,8 +46,6 @@ function CourseManagementPage() {
   const [selectedEnrolledUsers, setSelectedEnrolledUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Removed unused 'auth' variable
-
   // دالة لتحديث نص البحث
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
