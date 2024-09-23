@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { auth } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { useAuth } from '../context/AuthContext'; // Correct import
+// import { useAuth } from '../context/AuthContext'; // Removed unused import
 import "./LoginPage.css";
 import { ReactComponent as Logo } from "../photos/edecs logo white.svg";
 import { useNavigate } from "react-router-dom";
