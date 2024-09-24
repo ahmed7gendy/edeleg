@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import LoginPage from "./pages/LoginPage";
@@ -42,10 +42,7 @@ const App = () => {
         <Routes>
           {/* إذا لم يكن هناك مستخدم، عرض صفحة تسجيل الدخول */}
           {!user ? (
-            <>
-              <Route path="/" element={<LoginPage />} />
-              <Route path="*" element={<LoginPage />} />
-            </>
+            <Route path="*" element={<Navigate to="/" replace />} />
           ) : (
             <>
               <Route path="/welcome" element={<WelcomePage />} />
@@ -64,6 +61,8 @@ const App = () => {
               <Route path="*" element={<NotFoundPage />} />
             </>
           )}
+          {/* صفحة تسجيل الدخول */}
+          <Route path="/" element={<LoginPage />} />
         </Routes>
       </main>
     </div>
