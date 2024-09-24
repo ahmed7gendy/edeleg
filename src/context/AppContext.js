@@ -2,13 +2,9 @@ import React, { createContext, useState, useEffect } from 'react';
 import { get, ref } from 'firebase/database';
 import { db } from '../firebase';
 
-const sanitizeEmail = (email) => {
-  return email.replace(/\./g, ",");
-};
+export const UserContext = createContext();
 
-export const AppContext = createContext();
-
-export const AppProvider = ({ children }) => {
+export const UserProvider = ({ children }) => {
   const [courses, setCourses] = useState([]);
   const [users, setUsers] = useState([]);
 
@@ -39,8 +35,8 @@ export const AppProvider = ({ children }) => {
   }, []);
 
   return (
-    <AppContext.Provider value={{ courses, users, fetchCourses, fetchUsers }}>
+    <UserContext.Provider value={{ courses, users, fetchCourses, fetchUsers }}>
       {children}
-    </AppContext.Provider>
+    </UserContext.Provider>
   );
 };
