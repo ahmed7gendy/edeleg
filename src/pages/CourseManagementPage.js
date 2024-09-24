@@ -5,7 +5,7 @@ import "./CourseManagementPage.css";
 
 // دالة لتصحيح الإيميلات بإزالة الرموز غير المدعومة
 const sanitizeEmail = (email) => {
-  return email.replace(/[\.,#\$\[\]]/g, ",");
+  return email.replace(/[.,#$\[\]]/g, ","); // إزالة الهروب الزائد
 };
 
 function CourseManagementPage() {
@@ -13,11 +13,11 @@ function CourseManagementPage() {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [roles, setRoles] = useState({});
   const [enrolledUsers, setEnrolledUsers] = useState([]);
   const [selectedEnrolledUsers, setSelectedEnrolledUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // يمكنك استخدام auth إذا كان هناك حاجة لمزيد من التحقق أو البيانات
   const auth = getAuth();
 
   // دالة لتحديث نص البحث
@@ -52,14 +52,17 @@ function CourseManagementPage() {
         ? Object.entries(snapshot.val()).map(([email, user]) => ({
             ...user,
             email: email.replace(/,/g, "."),
-            department: user.department || "No department", // إضافة الـDepartment
+            department: user.department || "No department",
           }))
         : [];
 
       // استبعاد المستخدمين المسجلين في الدورة المحددة
       if (selectedCourse) {
         allUsers = allUsers.filter(
-          (user) => !enrolledUsers.find(enrolledUser => enrolledUser.email === user.email)
+          (user) =>
+            !enrolledUsers.find(
+              (enrolledUser) => enrolledUser.email === user.email
+            )
         );
       }
 
@@ -69,17 +72,6 @@ function CourseManagementPage() {
     }
   }, [selectedCourse, enrolledUsers]);
 
-  // جلب الأدوار من Firebase
-  const fetchRoles = useCallback(async () => {
-    try {
-      const rolesRef = ref(db, "roles");
-      const snapshot = await get(rolesRef);
-      setRoles(snapshot.exists() ? snapshot.val() : {});
-    } catch (error) {
-      console.error("Error fetching roles:", error);
-    }
-  }, []);
-
   // جلب المستخدمين المسجلين في الدورة
   const fetchEnrolledUsers = useCallback(async (courseName) => {
     try {
@@ -88,7 +80,6 @@ function CourseManagementPage() {
       if (snapshot.exists()) {
         const allRoles = snapshot.val();
         const enrolledEmails = Object.keys(allRoles).filter((email) => {
-          const sanitizedEmail = sanitizeEmail(email);
           return allRoles[email].courses && allRoles[email].courses[courseName];
         });
 
@@ -97,11 +88,13 @@ function CourseManagementPage() {
           enrolledEmails.map(async (email) => {
             const userRef = ref(db, `users/${sanitizeEmail(email)}`);
             const userSnapshot = await get(userRef);
-            return userSnapshot.exists() ? { ...userSnapshot.val(), email } : null;
+            return userSnapshot.exists()
+              ? { ...userSnapshot.val(), email }
+              : null;
           })
         );
 
-        setEnrolledUsers(enrolledUsersData.filter(user => user !== null));
+        setEnrolledUsers(enrolledUsersData.filter((user) => user !== null));
       } else {
         setEnrolledUsers([]);
       }
@@ -113,8 +106,7 @@ function CourseManagementPage() {
   // جلب البيانات عند تحميل الصفحة
   useEffect(() => {
     fetchCourses();
-    fetchRoles();
-  }, [fetchCourses, fetchRoles]);
+  }, [fetchCourses]);
 
   // جلب المستخدمين المسجلين عند تحديد دورة
   useEffect(() => {
@@ -131,7 +123,10 @@ function CourseManagementPage() {
       try {
         for (const user of selectedUsers) {
           const sanitizedEmail = sanitizeEmail(user.email);
-          const userCoursesRef = ref(db, `roles/${sanitizedEmail}/courses/${selectedCourse}`);
+          const userCoursesRef = ref(
+            db,
+            `roles/${sanitizedEmail}/courses/${selectedCourse}`
+          );
           await set(userCoursesRef, { hasAccess: true });
         }
         await fetchEnrolledUsers(selectedCourse);
@@ -149,7 +144,10 @@ function CourseManagementPage() {
       try {
         for (const userEmail of selectedEnrolledUsers) {
           const sanitizedEmail = sanitizeEmail(userEmail);
-          const userCoursesRef = ref(db, `roles/${sanitizedEmail}/courses/${selectedCourse}`);
+          const userCoursesRef = ref(
+            db,
+            `roles/${sanitizedEmail}/courses/${selectedCourse}`
+          );
           await remove(userCoursesRef);
         }
         await fetchEnrolledUsers(selectedCourse);
@@ -164,7 +162,7 @@ function CourseManagementPage() {
   // تحديث تحديد المستخدمين عبر checkbox
   const toggleUserSelection = (user) => {
     setSelectedUsers((prevSelected) =>
-      prevSelected.some(u => u.email === user.email)
+      prevSelected.some((u) => u.email === user.email)
         ? prevSelected.filter((u) => u.email !== user.email)
         : [...prevSelected, user]
     );
@@ -180,17 +178,25 @@ function CourseManagementPage() {
   };
 
   // فلترة المستخدمين بناءً على نص البحث
-  const filteredUsers = users.filter(user =>
-    (user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (user.department && user.department.toLowerCase().includes(searchTerm.toLowerCase())) // إضافة البحث بالـDepartment
+  const filteredUsers = users.filter(
+    (user) =>
+      (user.name &&
+        user.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user.email &&
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user.department &&
+        user.department.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   // فلترة المستخدمين المسجلين بناءً على نص البحث
-  const filteredEnrolledUsers = enrolledUsers.filter(user =>
-    (user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (user.department && user.department.toLowerCase().includes(searchTerm.toLowerCase())) // إضافة البحث بالـDepartment
+  const filteredEnrolledUsers = enrolledUsers.filter(
+    (user) =>
+      (user.name &&
+        user.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user.email &&
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user.department &&
+        user.department.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -237,10 +243,11 @@ function CourseManagementPage() {
                 <label>
                   <input
                     type="checkbox"
-                    checked={selectedUsers.some(u => u.email === user.email)}
+                    checked={selectedUsers.some((u) => u.email === user.email)}
                     onChange={() => toggleUserSelection(user)}
                   />
-                  {user.name || "No name"} ({user.email || "No email"}) - {user.department || "No department"}
+                  {user.name || "No name"} ({user.email || "No email"}) -{" "}
+                  {user.department || "No department"}
                 </label>
               </li>
             ))}
@@ -250,9 +257,11 @@ function CourseManagementPage() {
         <div className="details-section">
           {selectedCourse && (
             <div className="course-details">
-              <h2>Selected Course: {courses[selectedCourse]?.name || "No title"}</h2>
-              <h3>Enrolled Users:</h3>
-              <ul className="enrolled-users-list">
+              <h2>
+                Selected Course: {courses[selectedCourse]?.name || "No title"}
+              </h2>
+              <h3>Enrolled Users</h3>
+              <ul className="enrolled-user-list">
                 {filteredEnrolledUsers.map((user) => (
                   <li key={user.email}>
                     <label>
@@ -261,15 +270,14 @@ function CourseManagementPage() {
                         checked={selectedEnrolledUsers.includes(user.email)}
                         onChange={() => toggleEnrolledUserSelection(user.email)}
                       />
-                      {user.name || "No name"} ({user.email || "No email"}) - {user.department || "No department"}
+                      {user.name || "No name"} ({user.email || "No email"}) -{" "}
+                      {user.department || "No department"}
                     </label>
                   </li>
                 ))}
               </ul>
-              <div className="user-actions">
-                <button onClick={handleAddUsersToCourse}>Add Users to Course</button>
-                <button onClick={handleRemoveUsersFromCourse}>Remove Users from Course</button>
-              </div>
+              <button onClick={handleAddUsersToCourse}>Add Users to Course</button>
+              <button onClick={handleRemoveUsersFromCourse}>Remove Users from Course</button>
             </div>
           )}
         </div>
