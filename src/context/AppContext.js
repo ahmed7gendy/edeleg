@@ -7,6 +7,7 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
   const [courses, setCourses] = useState([]);
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true); // حالة التحميل
 
   const fetchCourses = async () => {
     const coursesRef = ref(db, "courses/mainCourses");
@@ -30,12 +31,25 @@ export const UserProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    // استرجاع حالة المستخدم من localStorage عند تحميل السياق
+    const storedUsers = localStorage.getItem('users');
+    if (storedUsers) {
+      setUsers(JSON.parse(storedUsers)); // استعادة البيانات من localStorage
+    }
+    
     fetchCourses();
     fetchUsers();
+    
+    setLoading(false); // الانتهاء من تحميل البيانات
   }, []);
 
+  useEffect(() => {
+    // تخزين المستخدمين في localStorage عند تغيير البيانات
+    localStorage.setItem('users', JSON.stringify(users));
+  }, [users]);
+
   return (
-    <UserContext.Provider value={{ courses, users, fetchCourses, fetchUsers }}>
+    <UserContext.Provider value={{ courses, users, fetchCourses, fetchUsers, loading }}>
       {children}
     </UserContext.Provider>
   );
