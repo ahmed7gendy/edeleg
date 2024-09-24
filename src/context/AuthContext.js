@@ -2,12 +2,10 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import { getDatabase, ref, get } from 'firebase/database';
 
-// دالة لتنظيف البريد الإلكتروني
 const sanitizeEmail = (email) => {
-  return email.replace(/\./g, ","); // استبدال النقاط بفواصل
+  return email.replace(/\./g, ",");
 };
 
-// إنشاء السياق
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
@@ -17,12 +15,19 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const auth = getAuth();
+    
+    // التحقق من وجود معرف المستخدم في localStorage
+    const storedUser = localStorage.getItem('userEmail');
+    if (storedUser) {
+      setUser({ email: storedUser }); // تعيين المستخدم بناءً على البريد المخزن
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUser(user);
-        const email = sanitizeEmail(user.email); // تنظيف البريد الإلكتروني
+        localStorage.setItem('userEmail', sanitizeEmail(user.email)); // حفظ البريد في localStorage
 
-        // جلب الأدوار من Firebase
+        const email = sanitizeEmail(user.email);
         const db = getDatabase();
         const userRef = ref(db, `users/${email}`);
 
@@ -30,9 +35,8 @@ export function AuthProvider({ children }) {
           const snapshot = await get(userRef);
           if (snapshot.exists()) {
             const userData = snapshot.val();
-            const role = userData.role || "User"; // الحصول على الدور
+            const role = userData.role || "User";
 
-            // إعطاء نفس الصلاحيات لـ Admin و SuperAdmin
             if (role === "SuperAdmin" || role === "admin") {
               setIsSuperAdmin(true);
               setIsAdmin(true);
@@ -53,6 +57,7 @@ export function AuthProvider({ children }) {
         setUser(null);
         setIsAdmin(false);
         setIsSuperAdmin(false);
+        localStorage.removeItem('userEmail'); // إزالة البريد من localStorage إذا لم يكن هناك مستخدم
       }
     });
 
@@ -66,6 +71,7 @@ export function AuthProvider({ children }) {
       setUser(null);
       setIsAdmin(false);
       setIsSuperAdmin(false);
+      localStorage.removeItem('userEmail'); // إزالة البريد من localStorage عند تسجيل الخروج
     } catch (error) {
       console.error("Logout failed:", error);
     }
@@ -78,7 +84,6 @@ export function AuthProvider({ children }) {
   );
 }
 
-// دالة لاستخدام السياق في أماكن أخرى
 export function useAuth() {
   return useContext(AuthContext);
 }
