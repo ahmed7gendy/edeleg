@@ -288,7 +288,7 @@ function CourseManagementPage() {
                 Enrolled Users in{" "}
                 {courses[selectedCourse]?.name || "Unnamed Course"}
               </h2>
-              <ul className="user-list">
+              <ul className="enrolled-user-list">
                 {filteredEnrolledUsers.length > 0 ? (
                   filteredEnrolledUsers.map((user) => (
                     <li key={user.email}>
