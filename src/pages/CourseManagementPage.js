@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { db, ref, set, get, remove } from "../firebase";
+import { getAuth } from "firebase/auth"; // تأكد من استخدامه في مكان آخر إذا كان مطلوبًا
 import "./CourseManagementPage.css";
 
 // دالة لتصحيح الإيميلات بإزالة الرموز غير المدعومة
 const sanitizeEmail = (email) => {
-  return email.replace(",", ""); // إزالة الهروب الزائد
+  return email.replace(/[.]/g, ","); // إزالة الهروب الزائد
 };
 
 function CourseManagementPage() {
@@ -15,6 +16,8 @@ function CourseManagementPage() {
   const [enrolledUsers, setEnrolledUsers] = useState([]);
   const [selectedEnrolledUsers, setSelectedEnrolledUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const auth = getAuth();
 
   // دالة لتحديث نص البحث
   const handleSearchChange = (event) => {
@@ -272,8 +275,12 @@ function CourseManagementPage() {
                   </li>
                 ))}
               </ul>
-              <button onClick={handleAddUsersToCourse}>Add Users to Course</button>
-              <button onClick={handleRemoveUsersFromCourse}>Remove Users from Course</button>
+              <button onClick={handleAddUsersToCourse}>
+                Add Users to Course
+              </button>
+              <button onClick={handleRemoveUsersFromCourse}>
+                Remove Users from Course
+              </button>
             </div>
           )}
         </div>
