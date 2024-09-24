@@ -13,7 +13,7 @@ import CourseManagementPage from "./pages/CourseManagementPage";
 import AddTaskPage from "./pages/AddTaskPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ArchivedTasksPage from "./pages/ArchivedTasksPage"; // استيراد صفحة الأرشيف
-import LoadingScreen from "./components/LoadingScreen"; // استيراد صفحة التحميل
+import LoadingScreen from "./components/LoadingScreen"; // استيراد شاشة التحميل
 import { useAuth } from "./context/AuthContext";
 import "./App.css";
 
@@ -40,6 +40,7 @@ const App = () => {
       {user && <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />}
       <main className="main-content" onClick={closeSidebar}>
         <Routes>
+          {/* إذا لم يكن هناك مستخدم، عرض صفحة تسجيل الدخول */}
           {!user ? (
             <>
               <Route path="/" element={<LoginPage />} />
