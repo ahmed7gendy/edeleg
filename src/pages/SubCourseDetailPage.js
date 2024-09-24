@@ -11,7 +11,7 @@ const SubCourseDetailPage = () => {
   const [subCourse, setSubCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [mediaEnded, setMediaEnded] = useState(true); // Default to true if no media
+  const [mediaEnded, setMediaEnded] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [startTime, setStartTime] = useState(null);
@@ -25,7 +25,7 @@ const SubCourseDetailPage = () => {
   const mediaRef = useRef(null);
 
   useEffect(() => {
-    setStartTime(new Date()); // Set start time when component mounts
+    setStartTime(new Date());
 
     const fetchSubCourseDetails = async () => {
       try {
@@ -50,8 +50,6 @@ const SubCourseDetailPage = () => {
 
         const data = snapshot.val();
         setSubCourse(data);
-
-        // Set total number of questions
         const questions = data.questions ? Object.values(data.questions) : [];
         setTotalQuestions(questions.length);
       } catch (error) {
@@ -66,7 +64,7 @@ const SubCourseDetailPage = () => {
 
   const handleMediaEnd = () => {
     setMediaEnded(true);
-    setEndTime(new Date()); // Set end time when all media has ended
+    setEndTime(new Date());
   };
 
   const handleNextMedia = () => {
@@ -114,7 +112,7 @@ const SubCourseDetailPage = () => {
       return;
     }
 
-    const totalTime = endTime ? (endTime - startTime) / 1000 : 0; // Time in seconds
+    const totalTime = endTime ? (endTime - startTime) / 1000 : 0;
 
     let correctCount = 0;
 
@@ -148,7 +146,7 @@ const SubCourseDetailPage = () => {
         ref(db, `submissions/${user.uid}/${subCourseId}`),
         submissionData
       );
-      setSubmissionResult(submissionData); // Store submission result for display
+      setSubmissionResult(submissionData);
       alert("Submitted!");
       navigate("/welcome");
     } catch (error) {
@@ -178,6 +176,16 @@ const SubCourseDetailPage = () => {
     ? Object.values(subCourse.questions)[currentQuestionIndex]
     : null;
 
+  // Function to convert Dropbox links to direct download links
+  const convertDropboxLink = (link) => {
+    if (link.includes("dropbox.com")) {
+      return link
+        .replace("www.dropbox.com", "dl.dropboxusercontent.com")
+        .replace("?dl=0", "");
+    }
+    return link;
+  };
+
   return (
     <div className="sub-course-detail-container">
       <h1>{subCourse.title}</h1>
@@ -187,11 +195,14 @@ const SubCourseDetailPage = () => {
         {currentMedia && (
           <div className="media-content">
             {subCourse.images?.[currentMediaKey] && (
-              <img src={subCourse.images[currentMediaKey]} alt="Course Media" />
+              <img
+                src={convertDropboxLink(subCourse.images[currentMediaKey])}
+                alt="Course Media"
+              />
             )}
             {subCourse.pdfs?.[currentMediaKey] && (
               <iframe
-                src={subCourse.pdfs[currentMediaKey]}
+                src={convertDropboxLink(subCourse.pdfs[currentMediaKey])}
                 title="PDF Document"
                 frameBorder="0"
                 style={{ width: "100%", height: "500px" }}
@@ -199,12 +210,14 @@ const SubCourseDetailPage = () => {
             )}
             {subCourse.videos?.[currentMediaKey] && (
               <div className="video-container">
-                <video
-                  ref={mediaRef}
-                  src={subCourse.videos[currentMediaKey]}
-                  controls
-                  onEnded={handleMediaEnd}
-                ></video>
+                <iframe
+                  src={convertDropboxLink(subCourse.videos[currentMediaKey])}
+                  width="100%"
+                  height="500px"
+                  frameBorder="0"
+                  allowFullScreen
+                  title="Dropbox Replay Video"
+                ></iframe>
               </div>
             )}
           </div>
