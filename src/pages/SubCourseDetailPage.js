@@ -22,7 +22,7 @@ const SubCourseDetailPage = () => {
 
   const auth = getAuth();
   const user = auth.currentUser;
-  const mediaRef = useRef(null);
+  const mediaRef = useRef(null); // يستخدم الآن للتحكم بالفيديو
 
   useEffect(() => {
     setStartTime(new Date());
@@ -65,6 +65,10 @@ const SubCourseDetailPage = () => {
   const handleMediaEnd = () => {
     setMediaEnded(true);
     setEndTime(new Date());
+
+    if (mediaRef.current) {
+      mediaRef.current.pause(); // إيقاف الفيديو عند نهايته
+    }
   };
 
   const handleNextMedia = () => {
@@ -211,12 +215,14 @@ const SubCourseDetailPage = () => {
             {subCourse.videos?.[currentMediaKey] && (
               <div className="video-container">
                 <iframe
+                  ref={mediaRef} // ربط الفيديو بـ mediaRef
                   src={convertDropboxLink(subCourse.videos[currentMediaKey])}
                   width="100%"
                   height="500px"
                   frameBorder="0"
                   allowFullScreen
                   title="Dropbox Replay Video"
+                  onEnded={handleMediaEnd} // استدعاء عند انتهاء الفيديو
                 ></iframe>
               </div>
             )}
