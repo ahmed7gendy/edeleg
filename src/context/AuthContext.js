@@ -2,10 +2,12 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import { getDatabase, ref, get } from 'firebase/database';
 
+// دالة لتنظيف البريد الإلكتروني
 const sanitizeEmail = (email) => {
   return email.replace(/\./g, ","); // استبدال النقاط بفواصل
 };
 
+// إنشاء السياق
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
@@ -20,7 +22,7 @@ export function AuthProvider({ children }) {
         setUser(user);
         const email = sanitizeEmail(user.email); // تنظيف البريد الإلكتروني
 
-        // Fetch user roles from Firebase
+        // جلب الأدوار من Firebase
         const db = getDatabase();
         const userRef = ref(db, `users/${email}`);
 
@@ -76,6 +78,7 @@ export function AuthProvider({ children }) {
   );
 }
 
+// دالة لاستخدام السياق في أماكن أخرى
 export function useAuth() {
   return useContext(AuthContext);
 }
