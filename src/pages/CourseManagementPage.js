@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { db, ref, set, get, remove } from "../firebase";
-import { getAuth } from "firebase/auth";
+import { getAuth } from "firebase/auth"; // تأكد من استخدامه في مكان آخر إذا كان مطلوبًا
 import "./CourseManagementPage.css";
 
 // دالة لتصحيح الإيميلات بإزالة الرموز غير المدعومة
@@ -17,8 +17,8 @@ function CourseManagementPage() {
   const [selectedEnrolledUsers, setSelectedEnrolledUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // يمكنك استخدام auth إذا كان هناك حاجة لمزيد من التحقق أو البيانات
-  const auth = getAuth();
+  // إذا كنت لا تحتاج إلى auth، يمكنك إزالته
+  // const auth = getAuth();
 
   // دالة لتحديث نص البحث
   const handleSearchChange = (event) => {
