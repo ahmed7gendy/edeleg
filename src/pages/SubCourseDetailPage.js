@@ -22,7 +22,7 @@ const SubCourseDetailPage = () => {
 
   const auth = getAuth();
   const user = auth.currentUser;
-  const mediaRef = useRef(null); // يستخدم الآن للتحكم بالفيديو
+  const mediaRef = useRef(null);
 
   useEffect(() => {
     setStartTime(new Date());
@@ -67,7 +67,7 @@ const SubCourseDetailPage = () => {
     setEndTime(new Date());
 
     if (mediaRef.current) {
-      mediaRef.current.pause(); // إيقاف الفيديو عند نهايته
+      mediaRef.current.pause();
     }
   };
 
@@ -180,7 +180,6 @@ const SubCourseDetailPage = () => {
     ? Object.values(subCourse.questions)[currentQuestionIndex]
     : null;
 
-  // Function to convert Dropbox links to direct download links
   const convertDropboxLink = (link) => {
     if (link.includes("dropbox.com")) {
       return link
@@ -210,19 +209,21 @@ const SubCourseDetailPage = () => {
                 title="PDF Document"
                 frameBorder="0"
                 style={{ width: "100%", height: "500px" }}
+                sandbox="allow-same-origin allow-scripts" // يمنع التنزيل
+                allow="fullscreen"
               ></iframe>
             )}
             {subCourse.videos?.[currentMediaKey] && (
               <div className="video-container">
                 <iframe
-                  ref={mediaRef} // ربط الفيديو بـ mediaRef
+                  ref={mediaRef}
                   src={convertDropboxLink(subCourse.videos[currentMediaKey])}
                   width="100%"
                   height="500px"
                   frameBorder="0"
                   allowFullScreen
                   title="Dropbox Replay Video"
-                  onEnded={handleMediaEnd} // استدعاء عند انتهاء الفيديو
+                  onEnded={handleMediaEnd}
                 ></iframe>
               </div>
             )}
@@ -281,17 +282,19 @@ const SubCourseDetailPage = () => {
         </div>
       )}
 
-      <div className="submission-result">
-        {submissionResult && (
-          <>
-            <h2>Submission Result</h2>
-            <p>Time spent: {submissionResult.totalTime} seconds</p>
-            <p>Percentage success: {submissionResult.percentageSuccess}%</p>
-          </>
-        )}
-      </div>
-
       <button onClick={handleSubmit}>Submit</button>
+
+      {submissionResult && (
+        <div className="submission-result">
+          <h3>Submission Result</h3>
+          <p>User ID: {submissionResult.userId}</p>
+          <p>Course ID: {submissionResult.courseId}</p>
+          <p>Start Time: {submissionResult.startTime}</p>
+          <p>End Time: {submissionResult.endTime}</p>
+          <p>Total Time: {submissionResult.totalTime} seconds</p>
+          <p>Success Rate: {submissionResult.percentageSuccess}%</p>
+        </div>
+      )}
     </div>
   );
 };
