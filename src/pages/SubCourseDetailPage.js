@@ -208,7 +208,7 @@ const SubCourseDetailPage = () => {
                 src={convertDropboxLink(subCourse.pdfs[currentMediaKey])}
                 title="PDF Document"
                 frameBorder="0"
-                style={{ width: "100%", height: "500px" }}
+                style={{ width: "100%", height: "900px" }}
                 sandbox="allow-same-origin allow-scripts" // يمنع التنزيل
                 allow="fullscreen"
               ></iframe>
