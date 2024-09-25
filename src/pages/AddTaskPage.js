@@ -8,7 +8,7 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import "./AddTaskPage.css";
-  
+
 const AddTaskPage = () => {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
