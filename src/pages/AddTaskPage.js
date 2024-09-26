@@ -1,27 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { ref, set, push, get } from "firebase/database";
-import { db, storage } from "../firebase";
+import { db } from "../firebase"; // No need for Firebase Storage now
 import { getAuth } from "firebase/auth";
-import {
-  uploadBytes,
-  ref as storageRef,
-  getDownloadURL,
-} from "firebase/storage";
 import "./AddTaskPage.css";
 
 const AddTaskPage = () => {
-  const [file, setFile] = useState(null);
+  const [dropboxLink, setDropboxLink] = useState(""); // Dropbox link instead of file
   const [message, setMessage] = useState("");
-  const [assignedEmails, setAssignedEmails] = useState([]); // Multiple emails
+  const [assignedEmails, setAssignedEmails] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState("");
-  const [allUsers, setAllUsers] = useState([]); // For searching users
+  const [allUsers, setAllUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchDepartment, setSearchDepartment] = useState(""); // New state for department search
+  const [searchDepartment, setSearchDepartment] = useState("");
 
   useEffect(() => {
-    // Fetch all users to enable search
     const fetchUsers = async () => {
       const usersRef = ref(db, "users");
       const snapshot = await get(usersRef);
@@ -33,16 +27,12 @@ const AddTaskPage = () => {
     fetchUsers();
   }, []);
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
   const handleUserSelect = (email) => {
     setAssignedEmails((prev) => {
       if (prev.includes(email)) {
-        return prev.filter((e) => e !== email); // Deselect if already selected
+        return prev.filter((e) => e !== email);
       }
-      return [...prev, email]; // Add email to the list
+      return [...prev, email];
     });
   };
 
@@ -66,34 +56,31 @@ const AddTaskPage = () => {
       return;
     }
 
+    if (!dropboxLink) {
+      setError("Please provide a valid Dropbox link.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      let fileUrl = "";
-
-      if (file) {
-        const fileRef = storageRef(storage, `tasks/${file.name}`);
-        await uploadBytes(fileRef, file);
-        fileUrl = await getDownloadURL(fileRef);
-      }
-
       const taskRef = ref(db, "tasks");
       const newTaskRef = push(taskRef);
 
       await set(newTaskRef, {
         message,
-        fileUrl,
-        assignedEmails, // Store as array
+        dropboxLink, // Storing the Dropbox link
+        assignedEmails,
         createdBy: user.email,
         createdAt: new Date().toISOString(),
       });
 
       const notificationsRef = ref(db, "notifications");
 
-      // Send notification to each assigned user
       assignedEmails.forEach(async (email) => {
         const newNotificationRef = push(notificationsRef);
         await set(newNotificationRef, {
           message: `New task assigned to you: ${message}`,
-          fileUrl,
+          dropboxLink,
           assignedEmail: email,
           createdBy: user.email,
           createdAt: new Date().toISOString(),
@@ -101,19 +88,18 @@ const AddTaskPage = () => {
         });
       });
 
-      // Notification for creator
       const newCreatorNotificationRef = push(notificationsRef);
       await set(newCreatorNotificationRef, {
         message: `You have created a new task: ${message}`,
-        fileUrl,
-        assignedEmails: assignedEmails.join(", "), // Show all assigned users
+        dropboxLink,
+        assignedEmails: assignedEmails.join(", "),
         createdBy: user.email,
         createdAt: new Date().toISOString(),
         isRead: false,
       });
 
       setSuccess("Task added successfully!");
-      setFile(null);
+      setDropboxLink("");
       setMessage("");
       setAssignedEmails([]);
     } catch (error) {
@@ -123,7 +109,6 @@ const AddTaskPage = () => {
     }
   };
 
-  // Filter users by email and department
   const filteredUsers = allUsers.filter((user) => {
     const email = user.email ? user.email.toLowerCase() : "";
     const department = user.department ? user.department.toLowerCase() : "";
@@ -134,15 +119,20 @@ const AddTaskPage = () => {
     );
   });
 
-  console.log("Filtered Users:", filteredUsers); // Debugging line
-
   return (
     <div className="add-task-container">
       <h1>Add New Task</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="file">Upload File:</label>
-          <input type="file" id="file" onChange={handleFileChange} />
+          <label htmlFor="dropboxLink">Dropbox File Link:</label>
+          <input
+            type="text"
+            id="dropboxLink"
+            value={dropboxLink}
+            onChange={(e) => setDropboxLink(e.target.value)}
+            placeholder="Paste Dropbox file link"
+            required
+          />
         </div>
         <div>
           <label htmlFor="message">Message:</label>
