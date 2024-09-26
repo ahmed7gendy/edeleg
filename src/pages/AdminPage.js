@@ -1,25 +1,27 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { db, ref, set, get, remove } from "../firebase";
-import {
-  getAuth,
-  deleteUser,
-} from "firebase/auth";
-import { useNavigate } from "react-router-dom";
-import "./AdminPage.css";
+import { db, ref, set, get, remove } from "../firebase"; // استيراد العمليات على قاعدة البيانات
+import { getAuth, deleteUser, signInWithEmailAndPassword } from "firebase/auth"; // استيراد العمليات المتعلقة بالمصادقة
+import { createUserWithEmailAndPassword } from "firebase/auth"; // لإنشاء مستخدم جديد
+import { useNavigate } from "react-router-dom"; // لتوجيه المستخدم بين الصفحات
+import "./AdminPage.css"; // استيراد التنسيقات
+
 
 function AdminPage() {
-  const [users, setUsers] = useState([]);
-  const [roles, setRoles] = useState({});
-  const [courses, setCourses] = useState({});
-  const [newUserEmail, setNewUserEmail] = useState("");
-  const [newUserName, setNewUserName] = useState("");
-  const [newUserPassword, setNewUserPassword] = useState("");
-  const [newUserRole, setNewUserRole] = useState("admin");
-  const [newUserDepartment, setNewUserDepartment] = useState("Top Management");
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [users, setUsers] = useState([]); // لتخزين قائمة المستخدمين
+  const [roles, setRoles] = useState({}); // لتخزين قائمة الأدوار
+  const [courses, setCourses] = useState({}); // لتخزين قائمة الكورسات
+  const [newUserEmail, setNewUserEmail] = useState(""); // لتخزين البريد الإلكتروني للمستخدم الجديد
+  const [newUserName, setNewUserName] = useState(""); // لتخزين اسم المستخدم الجديد
+  const [newUserPassword, setNewUserPassword] = useState(""); // لتخزين كلمة مرور المستخدم الجديد
+  const [newUserRole, setNewUserRole] = useState("admin"); // لتحديد دور المستخدم الجديد
+  const [newUserDepartment, setNewUserDepartment] = useState("Top Management"); // لتحديد قسم المستخدم الجديد
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // للتحكم في عرض النافذة المنبثقة
+  const [selectedUser, setSelectedUser] = useState(null); // لتحديد المستخدم المختار
+
+  const auth = getAuth(); // للحصول على مصادقة Firebase
 
   const departments = [
+    // قائمة الأقسام المتاحة
     "Top Management",
     "Administration and Gov. Relations",
     "Projects Management Departments",
@@ -40,9 +42,8 @@ function AdminPage() {
     "Information Technology",
   ];
 
-  const auth = getAuth();
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
   const fetchCurrentUserRole = useCallback(async () => {
     try {
       const user = auth.currentUser;
@@ -51,13 +52,14 @@ function AdminPage() {
         const roleRef = ref(db, `roles/${sanitizedEmail}`);
         const roleSnapshot = await get(roleRef);
         if (roleSnapshot.exists()) {
-          // Removed unused setCurrentUserRole
+          // معالجة الدور إذا كان موجودًا (حاليًا غير مستخدمة)
         }
       }
     } catch (error) {
       console.error("Error fetching current user role:", error);
     }
   }, [auth]);
+
 
   const fetchData = useCallback(async () => {
     try {
@@ -83,6 +85,7 @@ function AdminPage() {
     }
   }, []);
 
+
   useEffect(() => {
     fetchCurrentUserRole();
     fetchData();
@@ -90,12 +93,23 @@ function AdminPage() {
 
   const handleAddUser = async () => {
     if (newUserEmail && newUserPassword && newUserName) {
+      const currentAdminUser = auth.currentUser; // حفظ المستخدم الحالي
+      const adminEmail = currentAdminUser.email;
+      const adminPassword = prompt("Please enter your admin password to continue"); // طلب كلمة مرور المدير الحالي
+
       try {
+        // إنشاء المستخدم الجديد
+        const { user } = await createUserWithEmailAndPassword(
+          auth,
+          newUserEmail,
+          newUserPassword
+        );
+
+        // تخزين بيانات المستخدم الجديد في قاعدة البيانات
         const sanitizedEmail = newUserEmail.replace(/\./g, ",");
         const rolesRef = ref(db, `roles/${sanitizedEmail}`);
         const usersRef = ref(db, `users/${sanitizedEmail}`);
-  
-        // إضافة بيانات المستخدم يدويًا إلى قاعدة البيانات
+
         await set(rolesRef, { role: newUserRole, courses: {} });
         await set(usersRef, {
           email: newUserEmail,
@@ -103,14 +117,18 @@ function AdminPage() {
           role: newUserRole,
           department: newUserDepartment,
         });
-  
-        // إعادة تعيين القيم في الواجهة
+
+        // إعادة تسجيل الدخول بالحساب الإداري
+        await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
+
+        // إعادة تعيين المدخلات
         setNewUserEmail("");
         setNewUserPassword("");
         setNewUserName("");
         setNewUserRole("admin");
         setNewUserDepartment("Top Management");
-  
+
+        // تحديث البيانات وإغلاق النافذة
         await fetchData();
         setIsPopupOpen(false);
       } catch (error) {
@@ -118,6 +136,8 @@ function AdminPage() {
       }
     }
   };
+
+  
   
   
 
@@ -184,6 +204,7 @@ function AdminPage() {
 
     handleUpdateCourseAccess(userEmail, courseId, subCourseName, !hasAccess);
   };
+
 
   const handleDisableUser = async (userEmail) => {
     try {
@@ -373,9 +394,11 @@ function AdminPage() {
             <button onClick={() => setIsPopupOpen(false)}>Close</button>
           </div>
         </div>
-      )}
-    </div>
-  );
+      )} {/* Closing the Popup component */}
+    </div> 
+  ); // Closing the return statement
 }
+
+
 
 export default AdminPage;
