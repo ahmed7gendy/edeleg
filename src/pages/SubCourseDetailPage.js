@@ -136,6 +136,7 @@ const SubCourseDetailPage = () => {
       totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0;
 
     const submissionData = {
+      email: user.email, // الحصول على البريد الإلكتروني من المستخدم الحالي
       userId: user ? user.uid : "Anonymous",
       courseId: subCourseId,
       startTime: startTime.toISOString(),
@@ -287,12 +288,13 @@ const SubCourseDetailPage = () => {
       {submissionResult && (
         <div className="submission-result">
           <h3>Submission Result</h3>
-          <p>User ID: {submissionResult.userId}</p>
+          <p>Email: {submissionResult.email}</p>
           <p>Course ID: {submissionResult.courseId}</p>
           <p>Start Time: {submissionResult.startTime}</p>
           <p>End Time: {submissionResult.endTime}</p>
           <p>Total Time: {submissionResult.totalTime} seconds</p>
           <p>Success Rate: {submissionResult.percentageSuccess}%</p>
+          <p>User Answers: {JSON.stringify(submissionResult.userAnswers)}</p>
         </div>
       )}
     </div>
