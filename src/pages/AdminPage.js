@@ -92,12 +92,11 @@ function AdminPage() {
   const handleAddUser = async () => {
     if (newUserEmail && newUserPassword && newUserName) {
       try {
-        await createUserWithEmailAndPassword(auth, newUserEmail, newUserPassword);
-
         const sanitizedEmail = newUserEmail.replace(/\./g, ",");
         const rolesRef = ref(db, `roles/${sanitizedEmail}`);
         const usersRef = ref(db, `users/${sanitizedEmail}`);
-
+  
+        // إضافة بيانات المستخدم يدويًا إلى قاعدة البيانات
         await set(rolesRef, { role: newUserRole, courses: {} });
         await set(usersRef, {
           email: newUserEmail,
@@ -105,13 +104,14 @@ function AdminPage() {
           role: newUserRole,
           department: newUserDepartment,
         });
-
+  
+        // إعادة تعيين القيم في الواجهة
         setNewUserEmail("");
         setNewUserPassword("");
         setNewUserName("");
         setNewUserRole("admin");
         setNewUserDepartment("Top Management");
-
+  
         await fetchData();
         setIsPopupOpen(false);
       } catch (error) {
@@ -119,6 +119,8 @@ function AdminPage() {
       }
     }
   };
+  
+  
 
   const handleRoleChange = async (userEmail, newRole) => {
     try {
