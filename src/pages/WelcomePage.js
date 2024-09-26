@@ -13,6 +13,7 @@ const WelcomePage = () => {
   const [userName, setUserName] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [currentUserEmail, setCurrentUserEmail] = useState("");
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -23,6 +24,7 @@ const WelcomePage = () => {
         }
 
         const email = user.email;
+        setCurrentUserEmail(email); // تخزين البريد الإلكتروني الحالي
         const safeEmailPath = email.replace(/\./g, ",");
 
         // Fetch user roles
@@ -195,7 +197,10 @@ const WelcomePage = () => {
               <p>Created by: {task.createdBy}</p>
               <p>Date: {new Date(task.createdAt).toLocaleString()}</p>
               <button onClick={() => openTaskModal(task)}>View Task</button>
-              <button onClick={() => endTask(task.id)}>End Task</button>
+              {/* إضافة شرط للتحقق مما إذا كان المستخدم هو من أنشأ المهمة */}
+              {task.createdBy === currentUserEmail && (
+                <button onClick={() => endTask(task.id)}>End Task</button>
+              )}
             </div>
           ))}
         </div>
