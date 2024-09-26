@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { ref, get } from 'firebase/database';
-import { db } from '../firebase'; // تأكد من تعديل المسار وفقاً لمشروعك
-import './ArchivedTasksPage.css'; // قم بإنشاء ملف CSS لتحسين تصميم الصفحة
+import { db } from '../firebase'; // Ensure to adjust the path according to your project
+import './ArchivedTasksPage.css'; // Create a CSS file to enhance the page design
 
 const ArchivedTasksPage = () => {
   const [archivedTasks, setArchivedTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredTasks, setFilteredTasks] = useState([]);
 
   useEffect(() => {
     const fetchArchivedTasks = async () => {
@@ -16,15 +18,16 @@ const ArchivedTasksPage = () => {
 
         if (archivedSnapshot.exists()) {
           const archivedData = archivedSnapshot.val();
-          
           const archivedArray = Object.keys(archivedData).map(key => ({
             id: key,
             ...archivedData[key]
           }));
           
           setArchivedTasks(archivedArray);
+          setFilteredTasks(archivedArray); // Initialize filtered tasks
         } else {
           setArchivedTasks([]);
+          setFilteredTasks([]);
         }
       } catch (error) {
         console.error('Error fetching archived tasks:', error);
@@ -37,6 +40,20 @@ const ArchivedTasksPage = () => {
     fetchArchivedTasks();
   }, []);
 
+  // Handle the search
+  const handleSearch = () => {
+    if (searchTerm.trim() === '') {
+      setFilteredTasks(archivedTasks); // Reset to all tasks if search term is empty
+    } else {
+      const filtered = archivedTasks.filter(task =>
+        task.message.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        (task.assignedEmail && task.assignedEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (task.assignedEmails && task.assignedEmails.some(email => email.toLowerCase().includes(searchTerm.toLowerCase())))
+      );
+      setFilteredTasks(filtered);
+    }
+  };
+
   if (loading) {
     return <p>Loading archived tasks...</p>;
   }
@@ -48,9 +65,20 @@ const ArchivedTasksPage = () => {
   return (
     <div className="archived-tasks-container">
       <h1>Archived Tasks</h1>
-      {archivedTasks.length > 0 ? (
+      
+      <div className="search-container">
+        <input 
+          type="text" 
+          placeholder="Search tasks..." 
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)} 
+        />
+        <button onClick={handleSearch}>Search</button>
+      </div>
+
+      {filteredTasks.length > 0 ? (
         <div className="archived-tasks-list">
-          {archivedTasks.map(task => (
+          {filteredTasks.map(task => (
             <div key={task.id} className="archived-task-card">
               {task.fileUrl && (
                 <a href={task.fileUrl} target="_blank" rel="noopener noreferrer">
@@ -58,7 +86,7 @@ const ArchivedTasksPage = () => {
                 </a>
               )}
               <p><strong>Task Message:</strong> {task.message}</p>
-              {/* التحقق من ما إذا كان assignedEmail موجودًا أو assignedEmails */}
+              {/* Check for assignedEmail or assignedEmails */}
               {task.assignedEmail && (
                 <p><strong>Assigned to:</strong> {task.assignedEmail}</p>
               )}
@@ -67,6 +95,9 @@ const ArchivedTasksPage = () => {
               )}
               <p><strong>Created by:</strong> {task.createdBy}</p>
               <p><strong>Date:</strong> {new Date(task.createdAt).toLocaleString()}</p>
+              {task.dropboxLink && (
+                <p><strong>Dropbox Link:</strong> <a href={task.dropboxLink} target="_blank" rel="noopener noreferrer">{task.dropboxLink}</a></p>
+              )}
             </div>
           ))}
         </div>
