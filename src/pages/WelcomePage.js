@@ -11,6 +11,8 @@ const WelcomePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userName, setUserName] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -61,7 +63,8 @@ const WelcomePage = () => {
 
         // Filter tasks by user email or creator
         const filteredTasks = tasksArray.filter(
-          (task) => task.assignedEmails?.includes(email) || task.createdBy === email
+          (task) =>
+            task.assignedEmails?.includes(email) || task.createdBy === email
         );
         setTasks(filteredTasks);
 
@@ -119,11 +122,16 @@ const WelcomePage = () => {
     }
   };
 
-  const isMegaLink = (url) => {
-    return (
-      url.startsWith("https://mega.nz/") ||
-      url.startsWith("https://drive.google.com/")
-    );
+  // Open task modal
+  const openTaskModal = (task) => {
+    setSelectedTask(task);
+    setShowModal(true);
+  };
+
+  // Close task modal
+  const closeTaskModal = () => {
+    setShowModal(false);
+    setSelectedTask(null);
   };
 
   return (
@@ -177,15 +185,6 @@ const WelcomePage = () => {
         <div className="task-container">
           {tasks.map((task) => (
             <div key={task.id} className="task-card">
-              {task.dropboxLink && (
-                <a
-                  href={task.dropboxLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <p>View Dropbox File</p>
-                </a>
-              )}
               <p>{task.message}</p>
               <p>
                 Assigned to:{" "}
@@ -195,12 +194,35 @@ const WelcomePage = () => {
               </p>
               <p>Created by: {task.createdBy}</p>
               <p>Date: {new Date(task.createdAt).toLocaleString()}</p>
+              <button onClick={() => openTaskModal(task)}>View Task</button>
               <button onClick={() => endTask(task.id)}>End Task</button>
             </div>
           ))}
         </div>
       ) : (
         <p>No Tasks Available</p>
+      )}
+
+      {/* Modal Popup for Viewing Task */}
+      {showModal && selectedTask && (
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close" onClick={closeTaskModal}>
+              &times;
+            </span>
+            <h2>Task Details</h2>
+            <p>{selectedTask.message}</p>
+            {selectedTask.dropboxLink && (
+              <a
+                href={selectedTask.dropboxLink.replace("dl=1", "dl=0")}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <p>View Dropbox File</p>
+              </a>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
