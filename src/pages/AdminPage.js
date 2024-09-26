@@ -277,60 +277,45 @@ function AdminPage() {
         </div>
 
         <div className="user-details">
-          {selectedUser && (
-            <>
-              <h2>User Details</h2>
-              <p>
-                <strong>Email:</strong> {selectedUser.email}
-              </p>
-              <p>
-                <strong>Name:</strong> {selectedUser.name}
-              </p>
-              <p>
-                <strong>Department:</strong>{" "}
-                {selectedUser.department || "Not assigned"}
-              </p>
+  {selectedUser && (
+    <>
+      <h2>User Details</h2>
+      <p>
+        <strong>Email:</strong> {selectedUser.email}
+      </p>
+      <p>
+        <strong>Name:</strong> {selectedUser.name}
+      </p>
+      <p>
+        <strong>Department:</strong>{" "}
+        {selectedUser.department || "Not assigned"}
+      </p>
 
-              <p>
-                <strong>Role:</strong>{" "}
-                <select
-                  value={
-                    roles[selectedUser.email.replace(/\./g, ",")]?.role || ""
-                  }
-                  onChange={(e) =>
-                    handleRoleChange(selectedUser.email, e.target.value)
-                  }
-                >
-                  <option value="admin">admin</option>
-                  <option value="User">User</option>
-                  <option value="Disabled">Disabled</option>
-                </select>
-              </p>
+      {/* عرض الصلاحية بدون تعديل */}
+      <p>
+        <strong>Role:</strong>{" "}
+        {roles[selectedUser.email.replace(/\./g, ",")]?.role || ""}
+      </p>
 
-              <h3>Course Access</h3>
-              {Object.entries(courses).map(([courseId, course]) => (
-                <div key={courseId}>
-                  <h4>{course.name}</h4>
-                  {course.subCourses && Object.entries(course.subCourses).map(([subCourseId, subCourse]) => (
-                    <div key={subCourseId}>
-                      <span>{getSubCourseName(courseId, subCourseId)}</span>
-                      <button onClick={() => handleToggleAccess(selectedUser.email, courseId, subCourse.name)}>
-                        Toggle Access
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ))}
-
-              <button onClick={() => handleDisableUser(selectedUser.email)}>
-                Disable User
+      {/* التحكم في الوصول إلى الكورسات */}
+      <h3>Course Access</h3>
+      {Object.entries(courses).map(([courseId, course]) => (
+        <div key={courseId}>
+          <h4>{course.name}</h4>
+          {course.subCourses && Object.entries(course.subCourses).map(([subCourseId, subCourse]) => (
+            <div key={subCourseId}>
+              <span>{getSubCourseName(courseId, subCourseId)}</span>
+              <button onClick={() => handleToggleAccess(selectedUser.email, courseId, subCourse.name)}>
+                Toggle Access
               </button>
-              <button onClick={() => handleRemoveUser(selectedUser.email)}>
-                Remove User
-              </button>
-            </>
-          )}
+            </div>
+          ))}
         </div>
+      ))}
+    </>
+  )}
+</div>
+
       </div>
 
       {isPopupOpen && (
