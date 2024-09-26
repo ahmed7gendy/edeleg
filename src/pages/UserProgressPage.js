@@ -12,6 +12,7 @@ function UserProgressPage() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const database = getDatabase();
 
   const fetchUsers = useCallback(async () => {
@@ -41,10 +42,11 @@ function UserProgressPage() {
       if (snapshot.exists()) {
         const tasksData = snapshot.val();
         const tasksList = Object.entries(tasksData).map(([id, data]) => ({
-          assignedEmail: data.assignedEmail,
+          assignedEmails: data.assignedEmails || [],
           createdBy: data.createdBy,
           createdAt: data.createdAt,
-          fileUrl: data.fileUrl,
+          dropboxLink: data.dropboxLink,
+          message: data.message,
         }));
         setArchivedTasks(tasksList);
       } else {
@@ -62,12 +64,13 @@ function UserProgressPage() {
       if (snapshot.exists()) {
         const notificationsData = snapshot.val();
         const notificationsList = Object.entries(notificationsData).map(([id, data]) => ({
-          message: data.message,
-          createdAt: data.createdAt,
-          fileUrl: data.fileUrl,
-          sender: data.sender,
-          recipient: data.recipient,
-          isRead: data.isRead,
+          id,
+          message: data.message || "No Message",
+          createdAt: data.createdAt || "N/A",
+          createdBy: data.createdBy || "N/A",
+          dropboxLink: data.dropboxLink || "N/A",
+          assignedEmails: Array.isArray(data.assignedEmails) ? data.assignedEmails : [],
+          isRead: data.isRead || false
         }));
         setNotifications(notificationsList);
       } else {
@@ -88,11 +91,11 @@ function UserProgressPage() {
           id,
           name: data.name,
           thumbnail: data.thumbnail,
-          subCourses: data.subCourses || [], // تأكد من أن هناك قيمة افتراضية
+          subCourses: data.subCourses || [],
           questions: data.questions || [],
           videos: data.videos || []
         }));
-        console.log("Courses Data:", mainCoursesList); // سجل البيانات المسترجعة
+        console.log("Courses Data:", mainCoursesList);
         setCourses(mainCoursesList);
       } else {
         console.error("No data found at the path 'courses/mainCourses'");
@@ -103,8 +106,6 @@ function UserProgressPage() {
       setError(`Failed to fetch courses. Error: ${error.message}`);
     }
   }, [database]);
-  
-  
 
   const fetchSubmissions = useCallback(async () => {
     try {
@@ -180,6 +181,31 @@ function UserProgressPage() {
     XLSX.writeFile(workbook, "UserProgressData.xlsx");
   };
 
+  const filteredUsers = users.filter(user =>
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.role.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredArchivedTasks = archivedTasks.filter(task =>
+    task.assignedEmails.join(", ").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    task.createdBy.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    task.message.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredNotifications = notifications.filter(notification =>
+    notification.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    notification.createdBy.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredCourses = courses.filter(course =>
+    course.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredSubmissions = submissions.filter(submission => 
+    submission.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    submission.courseId.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
@@ -190,6 +216,12 @@ function UserProgressPage() {
 
       <div>
         <h2>Users</h2>
+        <input
+          type="text"
+          placeholder="Search Users"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
         <table>
           <thead>
             <tr>
@@ -199,7 +231,7 @@ function UserProgressPage() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <tr key={user.id}>
                 <td>{user.id}</td>
                 <td>{user.email}</td>
@@ -212,22 +244,30 @@ function UserProgressPage() {
 
       <div>
         <h2>Archived Tasks</h2>
+        <input
+          type="text"
+          placeholder="Search Archived Tasks"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
         <table>
           <thead>
             <tr>
-              <th>Assigned Email</th>
+              <th>Assigned Emails</th>
               <th>Created By</th>
               <th>Created At</th>
-              <th>File URL</th>
+              <th>Dropbox Link</th>
+              <th>Message</th>
             </tr>
           </thead>
           <tbody>
-            {archivedTasks.map((task, index) => (
+            {filteredArchivedTasks.map((task, index) => (
               <tr key={index}>
-                <td>{task.assignedEmail}</td>
+                <td>{task.assignedEmails.join(", ")}</td>
                 <td>{task.createdBy}</td>
                 <td>{task.createdAt}</td>
-                <td>{task.fileUrl}</td>
+                <td>{task.dropboxLink}</td>
+                <td>{task.message}</td>
               </tr>
             ))}
           </tbody>
@@ -236,25 +276,33 @@ function UserProgressPage() {
 
       <div>
         <h2>Notifications</h2>
+        <input
+          type="text"
+          placeholder="Search Notifications"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
         <table>
           <thead>
             <tr>
+              <th>ID</th>
               <th>Message</th>
               <th>Created At</th>
-              <th>File URL</th>
-              <th>Sender</th>
-              <th>Recipient</th>
+              <th>Created By</th>
+              <th>Dropbox Link</th>
+              <th>Assigned Emails</th>
               <th>Is Read</th>
             </tr>
           </thead>
           <tbody>
-            {notifications.map((notification, index) => (
-              <tr key={index}>
+            {filteredNotifications.map((notification) => (
+              <tr key={notification.id}>
+                <td>{notification.id}</td>
                 <td>{notification.message}</td>
                 <td>{notification.createdAt}</td>
-                <td>{notification.fileUrl}</td>
-                <td>{notification.sender}</td>
-                <td>{notification.recipient}</td>
+                <td>{notification.createdBy}</td>
+                <td>{notification.dropboxLink}</td>
+                <td>{notification.assignedEmails.join(", ")}</td>
                 <td>{notification.isRead ? "Yes" : "No"}</td>
               </tr>
             ))}
@@ -263,53 +311,49 @@ function UserProgressPage() {
       </div>
 
       <div>
-  <h2>Courses</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Thumbnail</th>
-        <th>Sub Courses</th>
-      </tr>
-    </thead>
-    <tbody>
-      {courses.length > 0 ? (
-        courses.map((course) => (
-          <tr key={course.id}>
-            <td>{course.id}</td>
-            <td>{course.name}</td>
-            <td>
-              <img src={course.thumbnail} alt={course.name} width={100} />
-            </td>
-            <td>
-              {course.subCourses && Object.keys(course.subCourses).length > 0 ? (
-                Object.entries(course.subCourses).map(([subCourseId, subCourseData]) => (
-                  <div key={subCourseId}>
-                    {subCourseData.name} {/* Display the name of the subCourse */}
-                  </div>
-                ))
-              ) : (
-                <div>No Sub Courses</div>
-              )}
-            </td>
-          </tr>
-        ))
-      ) : (
-        <tr>
-          <td colSpan="4">No Courses Available</td>
-        </tr>
-      )}
-    </tbody>
-  </table>
-</div>
-
-
-
-
+        <h2>Courses</h2>
+        <input
+          type="text"
+          placeholder="Search Courses"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Thumbnail</th>
+              <th>Sub Courses</th>
+              <th>Questions</th>
+              <th>Videos</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredCourses.map((course) => (
+              <tr key={course.id}>
+                <td>{course.id}</td>
+                <td>{course.name}</td>
+                <td>
+                  <img src={course.thumbnail} alt={course.name} style={{ width: "50px" }} />
+                </td>
+                <td>{course.subCourses.length}</td>
+                <td>{course.questions.length}</td>
+                <td>{course.videos.length}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <div>
         <h2>Submissions</h2>
+        <input
+          type="text"
+          placeholder="Search Submissions"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
         <table>
           <thead>
             <tr>
@@ -324,7 +368,7 @@ function UserProgressPage() {
             </tr>
           </thead>
           <tbody>
-            {submissions.map((submission, index) => (
+            {filteredSubmissions.map((submission, index) => (
               <tr key={index}>
                 <td>{submission.email}</td>
                 <td>{submission.courseId}</td>
