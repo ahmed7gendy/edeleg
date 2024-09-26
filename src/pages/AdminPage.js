@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import { db, ref, set, get, remove } from "../firebase";
 import {
   getAuth,
-  createUserWithEmailAndPassword,
   deleteUser,
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
