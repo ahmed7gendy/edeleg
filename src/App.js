@@ -34,6 +34,9 @@ const App = () => {
     return <LoadingScreen />;
   }
 
+  // التحقق من وجود المستخدم في localStorage
+  const storedUserEmail = localStorage.getItem("userEmail");
+
   return (
     <div className="app-container">
       {user && <Navbar onSidebarToggle={handleSidebarToggle} />}
@@ -41,21 +44,27 @@ const App = () => {
       <main className="main-content" onClick={closeSidebar}>
         <Routes>
           {/* إذا لم يكن هناك مستخدم، عرض صفحة تسجيل الدخول */}
-          {!user ? (
+          {!user && !storedUserEmail ? (
             <Route path="*" element={<Navigate to="/" replace />} />
           ) : (
             <>
               <Route path="/welcome" element={<WelcomePage />} />
               <Route path="/courses" element={<CoursePage />} />
               <Route path="/courses/:courseId" element={<CourseDetailPage />} />
-              <Route path="/sub-courses/:subCourseId" element={<SubCourseDetailPage />} />
+              <Route
+                path="/sub-courses/:subCourseId"
+                element={<SubCourseDetailPage />}
+              />
               <Route path="/user-progress" element={<UserProgressPage />} />
               <Route path="/add-task" element={<AddTaskPage />} />
               <Route path="/archived-tasks" element={<ArchivedTasksPage />} />
               {(isAdmin || isSuperAdmin) && (
                 <>
                   <Route path="/admin" element={<AdminPage />} />
-                  <Route path="/course-management" element={<CourseManagementPage />} />
+                  <Route
+                    path="/course-management"
+                    element={<CourseManagementPage />}
+                  />
                 </>
               )}
               <Route path="*" element={<NotFoundPage />} />
