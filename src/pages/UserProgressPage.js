@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { getDatabase, ref, get } from "firebase/database";
-import * as XLSX from "xlsx"; // Import xlsx
+import * as XLSX from "xlsx";
 import "./UserProgressPage.css";
 
 function UserProgressPage() {
@@ -8,7 +8,7 @@ function UserProgressPage() {
   const [archivedTasks, setArchivedTasks] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [courses, setCourses] = useState([]);
-  const [submissions, setSubmissions] = useState([]); // New state for submissions
+  const [submissions, setSubmissions] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -16,22 +16,18 @@ function UserProgressPage() {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const usersRef = ref(database, "roles");
+      const usersRef = ref(database, "users");
       const snapshot = await get(usersRef);
       if (snapshot.exists()) {
         const usersData = snapshot.val();
-        const usersList = Object.entries(usersData).map(
-          ([sanitizedEmail, user]) => {
-            const email = sanitizedEmail.replace(/,/g, ".");
-            return {
-              email,
-              role: user.role || "Unknown",
-            };
-          }
-        );
+        const usersList = Object.entries(usersData).map(([id, data]) => ({
+          id,
+          email: data.email,
+          role: data.role,
+        }));
         setUsers(usersList);
       } else {
-        throw new Error("No data found at the path 'roles'");
+        throw new Error("No data found at the path 'users'");
       }
     } catch (error) {
       setError(`Failed to fetch users. Error: ${error.message}`);
@@ -43,7 +39,13 @@ function UserProgressPage() {
       const tasksRef = ref(database, "archivedTasks");
       const snapshot = await get(tasksRef);
       if (snapshot.exists()) {
-        const tasksList = Object.values(snapshot.val());
+        const tasksData = snapshot.val();
+        const tasksList = Object.entries(tasksData).map(([id, data]) => ({
+          assignedEmail: data.assignedEmail,
+          createdBy: data.createdBy,
+          createdAt: data.createdAt,
+          fileUrl: data.fileUrl,
+        }));
         setArchivedTasks(tasksList);
       } else {
         throw new Error("No data found at the path 'archivedTasks'");
@@ -58,16 +60,15 @@ function UserProgressPage() {
       const notificationsRef = ref(database, "notifications");
       const snapshot = await get(notificationsRef);
       if (snapshot.exists()) {
-        const notificationsList = Object.values(snapshot.val()).map(
-          (notification) => ({
-            message: notification.message || "No message",
-            createdAt: notification.createdAt || "N/A",
-            fileUrl: notification.fileUrl || null,
-            sender: notification.createdBy || "Unknown",
-            recipient: notification.assignedEmail || "Unknown",
-            isRead: notification.isRead ? "Read" : "Unread",
-          })
-        );
+        const notificationsData = snapshot.val();
+        const notificationsList = Object.entries(notificationsData).map(([id, data]) => ({
+          message: data.message,
+          createdAt: data.createdAt,
+          fileUrl: data.fileUrl,
+          sender: data.sender,
+          recipient: data.recipient,
+          isRead: data.isRead,
+        }));
         setNotifications(notificationsList);
       } else {
         throw new Error("No data found at the path 'notifications'");
@@ -83,25 +84,27 @@ function UserProgressPage() {
       const snapshot = await get(coursesRef);
       if (snapshot.exists()) {
         const coursesData = snapshot.val();
-        const coursesList = Object.entries(coursesData).map(
-          ([courseId, course]) => ({
-            name: course.name,
-            thumbnail: course.thumbnail,
-            subCourses: course.subCourses
-              ? Object.values(course.subCourses).map(
-                  (subCourse) => subCourse.name
-                )
-              : [],
-          })
-        );
-        setCourses(coursesList);
+        const mainCoursesList = Object.entries(coursesData).map(([id, data]) => ({
+          id,
+          name: data.name,
+          thumbnail: data.thumbnail,
+          subCourses: data.subCourses || [], // تأكد من أن هناك قيمة افتراضية
+          questions: data.questions || [],
+          videos: data.videos || []
+        }));
+        console.log("Courses Data:", mainCoursesList); // سجل البيانات المسترجعة
+        setCourses(mainCoursesList);
       } else {
-        throw new Error("No data found at the path 'courses/mainCourses'");
+        console.error("No data found at the path 'courses/mainCourses'");
+        setError("No data found at the path 'courses/mainCourses'");
       }
     } catch (error) {
+      console.error("Error fetching courses:", error.message);
       setError(`Failed to fetch courses. Error: ${error.message}`);
     }
   }, [database]);
+  
+  
 
   const fetchSubmissions = useCallback(async () => {
     try {
@@ -109,20 +112,19 @@ function UserProgressPage() {
       const snapshot = await get(submissionsRef);
       if (snapshot.exists()) {
         const submissionsData = snapshot.val();
-        // Flatten the submissions data
-        const submissionsList = Object.values(submissionsData)
-          .flatMap((courseSubmissions) => Object.values(courseSubmissions))
-          .map((submission) => ({
-            email: submission.userId || "Unknown",
-            courseId: submission.courseId || "N/A",
-            endTime: submission.endTime || "N/A",
-            percentageSuccess: submission.percentageSuccess || "N/A",
-            startTime: submission.startTime || "N/A",
-            totalTime: submission.totalTime || "N/A",
-            userAnswers: submission.userAnswers
-              ? submission.userAnswers.join(", ")
-              : "N/A",
-          }));
+        const submissionsList = Object.entries(submissionsData).flatMap(
+          ([userId, courses]) => 
+            Object.entries(courses).map(([courseId, submission]) => ({
+              email: submission.email || "Unknown",
+              courseId: courseId,
+              endTime: submission.endTime || "Not Completed",
+              percentageSuccess: submission.percentageSuccess || "N/A",
+              startTime: submission.startTime || "N/A",
+              totalTime: submission.totalTime || "N/A",
+              userAnswers: submission.userAnswers ? submission.userAnswers.join(", ") : "N/A",
+              userId: userId,
+            }))
+        );
         setSubmissions(submissionsList);
       } else {
         throw new Error("No data found at the path 'submissions'");
@@ -141,7 +143,7 @@ function UserProgressPage() {
             fetchArchivedTasks(),
             fetchNotifications(),
             fetchCourses(),
-            fetchSubmissions(), // Fetch submissions
+            fetchSubmissions(),
           ]);
           setDataLoaded(true);
         } catch {
@@ -157,223 +159,186 @@ function UserProgressPage() {
     fetchArchivedTasks,
     fetchNotifications,
     fetchCourses,
-    fetchSubmissions, // Include fetchSubmissions in the dependency array
+    fetchSubmissions,
     dataLoaded,
   ]);
 
   const exportToExcel = () => {
-    // Prepare the data for export
     const usersSheet = XLSX.utils.json_to_sheet(users);
     const archivedTasksSheet = XLSX.utils.json_to_sheet(archivedTasks);
     const notificationsSheet = XLSX.utils.json_to_sheet(notifications);
     const coursesSheet = XLSX.utils.json_to_sheet(courses);
-    const submissionsSheet = XLSX.utils.json_to_sheet(submissions); // Updated for submissions
+    const submissionsSheet = XLSX.utils.json_to_sheet(submissions);
 
-    // Create a new workbook and add the sheets
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, usersSheet, "Users");
-    XLSX.utils.book_append_sheet(wb, archivedTasksSheet, "Archived Tasks");
-    XLSX.utils.book_append_sheet(wb, notificationsSheet, "Notifications");
-    XLSX.utils.book_append_sheet(wb, coursesSheet, "Courses");
-    XLSX.utils.book_append_sheet(wb, submissionsSheet, "Submissions");
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, usersSheet, "Users");
+    XLSX.utils.book_append_sheet(workbook, archivedTasksSheet, "Archived Tasks");
+    XLSX.utils.book_append_sheet(workbook, notificationsSheet, "Notifications");
+    XLSX.utils.book_append_sheet(workbook, coursesSheet, "Courses");
+    XLSX.utils.book_append_sheet(workbook, submissionsSheet, "Submissions");
 
-    // Write the workbook and trigger download
-    XLSX.writeFile(wb, "UserProgressData.xlsx");
+    XLSX.writeFile(workbook, "UserProgressData.xlsx");
   };
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
-  if (error) {
-    return <p className="error">{error}</p>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="user-progress-page">
+    <div>
       <h1>User Progress Page</h1>
-
-      {/* Add a button to trigger the export */}
       <button onClick={exportToExcel}>Export to Excel</button>
 
-      {/* Users Table */}
-      <h2>Users</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Role</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.length === 0 ? (
+      <div>
+        <h2>Users</h2>
+        <table>
+          <thead>
             <tr>
-              <td colSpan="2">No users available</td>
+              <th>ID</th>
+              <th>Email</th>
+              <th>Role</th>
             </tr>
-          ) : (
-            users.map((user) => (
-              <tr key={user.email}>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td>{user.id}</td>
                 <td>{user.email}</td>
                 <td>{user.role}</td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Archived Tasks Table */}
-      <h2>Archived Tasks</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Assigned Email</th>
-            <th>Created By</th>
-            <th>Submission Date</th>
-            <th>File URL</th>
-          </tr>
-        </thead>
-        <tbody>
-          {archivedTasks.length === 0 ? (
+      <div>
+        <h2>Archived Tasks</h2>
+        <table>
+          <thead>
             <tr>
-              <td colSpan="4">No archived tasks available</td>
+              <th>Assigned Email</th>
+              <th>Created By</th>
+              <th>Created At</th>
+              <th>File URL</th>
             </tr>
-          ) : (
-            archivedTasks.map((task, index) => (
+          </thead>
+          <tbody>
+            {archivedTasks.map((task, index) => (
               <tr key={index}>
                 <td>{task.assignedEmail}</td>
                 <td>{task.createdBy}</td>
-                <td>{task.createdAt || "N/A"}</td>
-                <td>
-                  {task.fileUrl ? (
-                    <a
-                      href={task.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      View File
-                    </a>
-                  ) : (
-                    "N/A"
-                  )}
-                </td>
+                <td>{task.createdAt}</td>
+                <td>{task.fileUrl}</td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Notifications Table */}
-      <h2>Notifications</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Message</th>
-            <th>Notification Date</th>
-            <th>File URL</th>
-            <th>Sender</th>
-            <th>Recipient</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {notifications.length === 0 ? (
+      <div>
+        <h2>Notifications</h2>
+        <table>
+          <thead>
             <tr>
-              <td colSpan="6">No notifications available</td>
+              <th>Message</th>
+              <th>Created At</th>
+              <th>File URL</th>
+              <th>Sender</th>
+              <th>Recipient</th>
+              <th>Is Read</th>
             </tr>
-          ) : (
-            notifications.map((notification, index) => (
+          </thead>
+          <tbody>
+            {notifications.map((notification, index) => (
               <tr key={index}>
                 <td>{notification.message}</td>
                 <td>{notification.createdAt}</td>
-                <td>
-                  {notification.fileUrl ? (
-                    <a
-                      href={notification.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      View File
-                    </a>
-                  ) : (
-                    "N/A"
-                  )}
-                </td>
+                <td>{notification.fileUrl}</td>
                 <td>{notification.sender}</td>
                 <td>{notification.recipient}</td>
-                <td>{notification.isRead}</td>
+                <td>{notification.isRead ? "Yes" : "No"}</td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Courses Table */}
-      <h2>Courses</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Course Name</th>
-            <th>Thumbnail</th>
-            <th>Sub-Courses</th>
+      <div>
+  <h2>Courses</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Thumbnail</th>
+        <th>Sub Courses</th>
+      </tr>
+    </thead>
+    <tbody>
+      {courses.length > 0 ? (
+        courses.map((course) => (
+          <tr key={course.id}>
+            <td>{course.id}</td>
+            <td>{course.name}</td>
+            <td>
+              <img src={course.thumbnail} alt={course.name} width={100} />
+            </td>
+            <td>
+              {course.subCourses && Object.keys(course.subCourses).length > 0 ? (
+                Object.entries(course.subCourses).map(([subCourseId, subCourseData]) => (
+                  <div key={subCourseId}>
+                    {subCourseData.name} {/* Display the name of the subCourse */}
+                  </div>
+                ))
+              ) : (
+                <div>No Sub Courses</div>
+              )}
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {courses.length === 0 ? (
-            <tr>
-              <td colSpan="3">No courses available</td>
-            </tr>
-          ) : (
-            courses.map((course, index) => (
-              <tr key={index}>
-                <td>{course.name}</td>
-                <td>
-                  <img
-                    src={course.thumbnail}
-                    alt="Course Thumbnail"
-                    width="100"
-                  />
-                </td>
-                <td>{course.subCourses.join(", ") || "N/A"}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+        ))
+      ) : (
+        <tr>
+          <td colSpan="4">No Courses Available</td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
 
-      {/* Submissions Table */}
-      <h2>Submissions</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Course ID</th>
-            <th>End Time</th>
-            <th>Percentage Success</th>
-            <th>Start Time</th>
-            <th>Total Time</th>
-            <th>User Answers</th>
-          </tr>
-        </thead>
-        <tbody>
-          {submissions.length === 0 ? (
+
+
+
+
+      <div>
+        <h2>Submissions</h2>
+        <table>
+          <thead>
             <tr>
-              <td colSpan="7">No submissions available</td>
+              <th>Email</th>
+              <th>Course ID</th>
+              <th>End Time</th>
+              <th>Percentage Success</th>
+              <th>Start Time</th>
+              <th>Total Time</th>
+              <th>User Answers</th>
+              <th>User ID</th>
             </tr>
-          ) : (
-            submissions.map((submission, index) => (
+          </thead>
+          <tbody>
+            {submissions.map((submission, index) => (
               <tr key={index}>
                 <td>{submission.email}</td>
                 <td>{submission.courseId}</td>
                 <td>{submission.endTime}</td>
-                <td>{submission.percentageSuccess}%</td>
+                <td>{submission.percentageSuccess}</td>
                 <td>{submission.startTime}</td>
                 <td>{submission.totalTime}</td>
                 <td>{submission.userAnswers}</td>
+                <td>{submission.userId}</td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
