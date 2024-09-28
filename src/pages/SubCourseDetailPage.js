@@ -11,11 +11,9 @@ const SubCourseDetailPage = () => {
   const [subCourse, setSubCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [mediaEnded, setMediaEnded] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [startTime, setStartTime] = useState(null);
-  const [endTime, setEndTime] = useState(null);
   const [userAnswers, setUserAnswers] = useState([]);
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [submissionResult, setSubmissionResult] = useState(null);
@@ -25,6 +23,7 @@ const SubCourseDetailPage = () => {
   const mediaRef = useRef(null);
 
   useEffect(() => {
+    // تعيين وقت البدء عند فتح الشاشة
     setStartTime(new Date());
 
     const fetchSubCourseDetails = async () => {
@@ -61,15 +60,6 @@ const SubCourseDetailPage = () => {
 
     fetchSubCourseDetails();
   }, [subCourseId]);
-
-  const handleMediaEnd = () => {
-    setMediaEnded(true);
-    setEndTime(new Date());
-
-    if (mediaRef.current) {
-      mediaRef.current.pause();
-    }
-  };
 
   const handleNextMedia = () => {
     if (subCourse) {
@@ -111,12 +101,8 @@ const SubCourseDetailPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!mediaEnded && subCourse?.videos) {
-      alert("Please watch all media until the end before submitting.");
-      return;
-    }
-
-    const totalTime = endTime ? (endTime - startTime) / 1000 : 0;
+    let endTime = new Date(); // استخدام let لتحديث وقت النهاية
+    const totalTime = (endTime - startTime) / 1000; // حساب الوقت الكلي
 
     let correctCount = 0;
 
@@ -136,11 +122,11 @@ const SubCourseDetailPage = () => {
       totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0;
 
     const submissionData = {
-      email: user.email, // الحصول على البريد الإلكتروني من المستخدم الحالي
+      email: user.email,
       userId: user ? user.uid : "Anonymous",
       courseId: subCourseId,
       startTime: startTime.toISOString(),
-      endTime: endTime ? endTime.toISOString() : "Not Completed",
+      endTime: endTime.toISOString(),
       totalTime,
       percentageSuccess,
       userAnswers,
@@ -224,7 +210,6 @@ const SubCourseDetailPage = () => {
                   frameBorder="0"
                   allowFullScreen
                   title="Dropbox Replay Video"
-                  onEnded={handleMediaEnd}
                 ></iframe>
               </div>
             )}
