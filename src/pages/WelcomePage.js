@@ -1,236 +1,155 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { ref, get, set, remove } from "firebase/database";
-import { db } from "../firebase";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import "./WelcomePage.css";
+/* src/pages/WelcomePage.css */
 
-const WelcomePage = () => {
-  const [courses, setCourses] = useState([]);
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [userName, setUserName] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [currentUserEmail, setCurrentUserEmail] = useState("");
+body {
+  font-family: "Roboto", sans-serif;
+}
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const user = await getCurrentUser();
-        if (!user) {
-          throw new Error("User is not authenticated.");
-        }
+.container {
+  border-radius: 30px;
+  margin: 50px 20px;
+  text-align: left;
+  /* محاذاة النصوص إلى أقصى اليسار */
+  width: 100%;
+  /* تأكد من أن الحاوية تأخذ كامل العرض */
+  box-sizing: border-box;
+  /* التأكد من أن الحاوية تأخذ عرضها الكامل بما في ذلك الحشو */
+}
 
-        const email = user.email;
-        setCurrentUserEmail(email); // تخزين البريد الإلكتروني الحالي
-        const safeEmailPath = email.replace(/\./g, ",");
+h1,
+h2 {
+  margin: 0;
+  /* إزالة المسافة العليا والسفلية */
+  padding: 0;
+  /* إزالة المسافة الداخلية */
+  text-align: left;
+  /* محاذاة النصوص إلى أقصى اليسار */
+}
 
-        // Fetch user roles
-        const rolesRef = ref(db, `roles/${safeEmailPath}`);
-        const rolesSnapshot = await get(rolesRef);
-        if (!rolesSnapshot.exists()) {
-          throw new Error("No data for roles.");
-        }
+h1 {
+  margin-bottom: 40px;
+  /* إضافة مسافة أسفل العنوان */
 
-        const userRoles = rolesSnapshot.val().courses || {};
+  padding-top: 60px;
+  /* ضبط المسافة العليا لعنوان h1 */
+}
 
-        // Fetch available courses
-        const coursesRef = ref(db, "courses/mainCourses");
-        const coursesSnapshot = await get(coursesRef);
-        if (!coursesSnapshot.exists()) {
-          throw new Error("No data for courses.");
-        }
+h2 {
+  padding-top: 80px;
+  /* ضبط المسافة العليا لعنوان h2 */
+  margin-bottom: 20px;
+  /* إضافة مسافة أسفل العنوان */
+}
 
-        const coursesData = coursesSnapshot.val();
-        const coursesArray = Object.keys(coursesData).map((key) => ({
-          id: key,
-          ...coursesData[key],
-        }));
-        const filteredCourses = coursesArray.filter(
-          (course) => userRoles[course.id]
-        );
+.course-container {
+  display: flex;
+  flex-direction: row;
+  /* عرض العناصر في صف */
+  gap: 1rem;
+  overflow-x: auto;
+  /* لتمكين التمرير الأفقي إذا لم يكن هناك مساحة كافية */
+  overflow-y: hidden;
+  /* إخفاء التمرير العمودي */
+  justify-content: flex-start;
+  /* محاذاة العناصر إلى اليسار */
+  /* Adjust for header height if necessary */
+  box-sizing: border-box;
+}
 
-        setCourses(filteredCourses);
+.task-card {
+  background-color: #ffffff; /* لون خلفية البطاقة */
+  padding: 20px;
+  border-radius: 10px; /* تقليل زاوية الحواف */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* زيادة الظل */
+  transition: transform 0.3s, box-shadow 0.3s; /* إضافة انتقال للظل */
+  cursor: pointer; /* تغيير شكل المؤشر عند المرور */
+}
 
-        // Fetch tasks
-        const tasksRef = ref(db, "tasks");
-        const tasksSnapshot = await get(tasksRef);
-        const tasksData = tasksSnapshot.val() || {};
-        const tasksArray = Object.keys(tasksData).map((key) => ({
-          id: key,
-          ...tasksData[key],
-        }));
+.task-card:hover {
+  transform: translateY(-3px); /* رفع البطاقة عند المرور */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* زيادة الظل عند المرور */
+}
 
-        // Filter tasks by user email or creator
-        const filteredTasks = tasksArray.filter(
-          (task) =>
-            task.assignedEmails?.includes(email) || task.createdBy === email
-        );
-        setTasks(filteredTasks);
+.task-card p {
+  margin: 10px 0;
+  color: #333; /* لون النص */
+  font-size: 1.1rem; /* حجم النص */
+}
 
-        // Fetch user name
-        const userRef = ref(db, `users/${safeEmailPath}`);
-        const userSnapshot = await get(userRef);
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.val();
-          setUserName(userData.name || "User");
-        } else {
-          setUserName("User");
-        }
-      } catch (error) {
-        console.error("Data entry error:", error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+.task-card strong {
+  font-weight: bold;
+}
 
-    fetchUserData();
-  }, []);
+.task-card img {
+  max-width: 100%;
+  border-radius: 8px; /* تقليل زاوية حواف الصورة */
+  margin-bottom: 10px; /* إضافة مسافة أسفل الصورة */
+}
 
-  // Get current user
-  const getCurrentUser = () => {
-    return new Promise((resolve, reject) => {
-      const auth = getAuth();
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          resolve(user);
-        } else {
-          reject(new Error("User is not authenticated."));
-        }
-      });
-    });
-  };
+.course-card {
+  border-radius: 28px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 440px;
+  /* عرض ثابت للبطاقات */
+  height: 221px;
+  /* ارتفاع ثابت للبطاقات */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #333;
+  font-size: 1rem;
+  /* حجم الخط */
+  font-weight: bold;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  flex-shrink: 0;
+  /* منع البطاقات من الانكماش */
+}
 
-  // End task and archive it
-  const endTask = async (taskId) => {
-    try {
-      const taskRef = ref(db, `tasks/${taskId}`);
-      const taskSnapshot = await get(taskRef);
-      if (!taskSnapshot.exists()) {
-        throw new Error("Task does not exist.");
-      }
+.course-card:hover {
+  background-color: #e0e0e0;
+}
 
-      const taskData = taskSnapshot.val();
-      const archivedTaskRef = ref(db, `archivedTasks/${taskId}`);
-      await set(archivedTaskRef, taskData);
-      await remove(taskRef);
-      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
-    } catch (error) {
-      console.error("Error ending task:", error);
-      setError(error.message);
-    }
-  };
+.course-card img {
+  border-radius: 28px;
+  width: 100%;
+  height: 150px;
+  /* ارتفاع ثابت للصورة */
+  object-fit: cover;
+}
 
-  // Open task modal
-  const openTaskModal = (task) => {
-    setSelectedTask(task);
-    setShowModal(true);
-  };
+.course-card h3 {
+  padding-top: 17px;
+  margin: 0;
+  /* إزالة المسافة العليا والسفلية */
+  width: 100%;
+}
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* خلفية معتمة */
+}
 
-  // Close task modal
-  const closeTaskModal = () => {
-    setShowModal(false);
-    setSelectedTask(null);
-  };
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 600px; /* عرض أقصى للنافذة */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
 
-  return (
-    <div className="container">
-      <h1>Welcome, {userName}</h1>
-      <h2>Courses</h2>
-      {loading ? (
-        <p>Loading ...</p>
-      ) : error ? (
-        <p>Error: {error}</p>
-      ) : courses.length > 0 ? (
-        <div className="course-container">
-          {courses.map((course) => (
-            <Link
-              key={course.id}
-              to={`/courses/${course.id}`}
-              className="course-card"
-            >
-              {course.thumbnail ? (
-                <a
-                  href={course.thumbnail}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img src={course.thumbnail} alt={course.name} />
-                </a>
-              ) : (
-                <div
-                  className="default-image"
-                  style={{
-                    backgroundColor: `hsl(${Math.random() * 360}, 70%, 80%)`,
-                  }}
-                >
-                  <p>No Available Courses</p>
-                </div>
-              )}
-              <h3>{course.name}</h3>
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <p>No Available Courses</p>
-      )}
-
-      <h2>Tasks</h2>
-      {loading ? (
-        <p>Loading tasks...</p>
-      ) : error ? (
-        <p>Error: {error}</p>
-      ) : tasks.length > 0 ? (
-        <div className="task-container">
-          {tasks.map((task) => (
-            <div key={task.id} className="task-card">
-              <p>{task.message}</p>
-              <p>
-                Assigned to:{" "}
-                {task.assignedEmails && task.assignedEmails.length > 0
-                  ? task.assignedEmails.join(", ")
-                  : "No one assigned"}
-              </p>
-              <p>Created by: {task.createdBy}</p>
-              <p>Date: {new Date(task.createdAt).toLocaleString()}</p>
-              <button onClick={() => openTaskModal(task)}>View Task</button>
-              {/* إضافة شرط للتحقق مما إذا كان المستخدم هو من أنشأ المهمة */}
-              {task.createdBy === currentUserEmail && (
-                <button onClick={() => endTask(task.id)}>End Task</button>
-              )}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p>No Tasks Available</p>
-      )}
-
-      {/* Modal Popup for Viewing Task */}
-      {showModal && selectedTask && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close" onClick={closeTaskModal}>
-              &times;
-            </span>
-            <h2>Task Details</h2>
-            <p>{selectedTask.message}</p>
-            {selectedTask.dropboxLink && (
-              <a
-                href={selectedTask.dropboxLink.replace("dl=1", "dl=0")}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <p>View Dropbox File</p>
-              </a>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default WelcomePage;
+.close {
+  cursor: pointer;
+  float: right;
+  font-size: 1.5rem;
+}
