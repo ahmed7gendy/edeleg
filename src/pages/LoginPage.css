@@ -106,13 +106,15 @@
 
 .password-toggle {
   position: absolute;
-  top: 50%;
-  right: 15px;
+  padding-bottom: 3px;
+  top: 40%;
+  right: 7px;
   transform: translateY(-50%);
   cursor: pointer;
   font-size: 14px;
   color: #007bff;
 }
+
 
 label {
   font-size: 14px;
