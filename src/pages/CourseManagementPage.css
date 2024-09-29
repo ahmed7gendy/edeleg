@@ -23,8 +23,9 @@
 /* التصميم الأساسي */
 .content {
   display: flex;
-  flex-wrap: wrap; /* للسماح بتوزيع العناصر على عدة أسطر */
-  justify-content: space-between;
+  justify-content: space-between; /* توزيع العناصر بالتساوي بين الحواف */
+  flex-wrap: nowrap; /* منع الانتقال إلى سطر جديد */
+  gap: 20px; /* مسافة بين الأقسام */
 }
 
 .courses-section,
@@ -36,7 +37,29 @@
   border-radius: 5px;
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin: 10px; /* إضافة مسافة بين العناصر */
+  margin: 0; /* إزالة المسافة الخارجية بين العناصر */
+}
+
+/* تحسين التوافق مع الأجهزة الكبيرة */
+@media (max-width: 1200px) {
+  .courses-section,
+  .users-section,
+  .details-section {
+    flex: 1 1 32%; /* تعديل العرض لجعل الأقسام تناسب الشاشات الصغيرة */
+  }
+}
+
+/* تحسين التوافق مع الأجهزة الصغيرة */
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column; /* ترتيب العناصر عموديًا على الشاشات الصغيرة */
+  }
+
+  .courses-section,
+  .users-section,
+  .details-section {
+    width: 100%; /* استخدام العرض الكامل على الشاشات الصغيرة */
+  }
 }
 
 /* تصميم قائمة الكورسات */
@@ -115,8 +138,7 @@
 }
 
 /* تصميم الـ checkbox ليكون دائري */
-.user-list input[type="checkbox"],
-.enrolled-users-list input[type="checkbox"] {
+input[type="checkbox"] {
   appearance: none; /* إزالة التنسيق الافتراضي */
   -webkit-appearance: none; /* إزالة التنسيق الافتراضي على متصفحات Webkit */
   background-color: #fff;
@@ -130,30 +152,28 @@
 }
 
 /* تصميم الـ checkbox عند التحديد */
-.user-list input[type="checkbox"]:checked,
-.enrolled-users-list input[type="checkbox"]:checked {
+input[type="checkbox"]:checked {
   border-color: #007bff; /* لون الحدود عند التحديد */
+  background-color: #fff; /* لون الخلفية عند التحديد */
 }
 
-/* إضافة علامة التحديد داخل الـ checkbox */
-.user-list input[type="checkbox"]::after,
-.enrolled-users-list input[type="checkbox"]::after {
+/* إضافة نقطة زرقاء داخل الـ checkbox */
+input[type="checkbox"]::after {
   content: "";
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 10px; /* عرض العلامة */
-  height: 10px; /* ارتفاع العلامة */
-  background: #fff; /* لون العلامة */
-  border-radius: 50%;
+  width: 8px; /* عرض النقطة */
+  height: 8px; /* ارتفاع النقطة */
+  background: #007bff; /* لون النقطة الزرقاء */
+  border-radius: 50%; /* جعلها دائرية */
   transform: translate(-50%, -50%);
   opacity: 0;
   transition: opacity 0.3s;
 }
 
-/* جعل العلامة مرئية عند التحديد */
-.user-list input[type="checkbox"]:checked::after,
-.enrolled-users-list input[type="checkbox"]:checked::after {
+/* جعل النقطة مرئية عند التحديد */
+input[type="checkbox"]:checked::after {
   opacity: 1;
 }
 
@@ -192,17 +212,4 @@
 
 .search-bar input[type="text"]:focus {
   border: 2px solid #007bff;
-}
-
-/* تحسين التوافق مع الأجهزة الصغيرة */
-@media (max-width: 768px) {
-  .content {
-    flex-direction: column; /* ترتيب العناصر عمودياً على الشاشات الصغيرة */
-  }
-
-  .courses-section,
-  .users-section,
-  .details-section {
-    width: 100%; /* استخدام العرض الكامل على الشاشات الصغيرة */
-  }
 }
