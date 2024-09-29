@@ -66,6 +66,7 @@
 .login-page input[type="email"],
 .login-page input[type="password"],
 .login-page button {
+  width: 100%; /* تأكد من أن كل عناصر الإدخال تأخذ عرضًا كاملًا */
   padding: 12px;
   margin-bottom: 20px;
   border-radius: 6px;
@@ -79,6 +80,7 @@
   outline: none;
   box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
 }
+
 
 .login-page button {
   background-color: #007bff;
