@@ -2,141 +2,144 @@
 .sidebar {
   border-radius: 28px;
   position: fixed;
-  top: 60px;
-  /* Sidebar starts just below Navbar */
+  top: 64px; /* الشريط الجانبي يبدأ أسفل شريط التنقل */
   left: 0;
-  width: 80px;
-  /* عرض الشريط الجانبي */
-  height: calc(100% - 60px);
-  /* يملأ الارتفاع المتبقي */
-  background-color: #ffffff;
-  /* لون خلفية */
-  color: #094D50;
-  /* لون النص */
+  width: 5vw; /* تقليل العرض إلى 5% */
+  height: calc(100% - 30px); /* يملأ الارتفاع المتبقي */
+  background-color: #ffffff; /* لون الخلفية */
+  color: #094d50; /* لون النص */
   transition: transform 0.3s ease-in-out;
   transform: translateX(-100%);
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
-  /* ظل أقوى */
-  z-index: 1000;
-  /* لضمان الرؤية فوق المحتوى الآخر */
+  box-shadow: 1px 0 6px rgba(0, 0, 0, 0.2); /* ظل */
+  z-index: 1000; /* لضمان الرؤية فوق المحتوى الآخر */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  /* توسيط العناصر أفقياً */
+  align-items: center; /* توسيط العناصر أفقياً */
 }
 
 .sidebar.open {
-  transform: translateX(0);
+  transform: translateX(0); /* عند الفتح */
 }
 
 .sidebar.closed {
-  transform: translateX(-100%);
+  transform: translateX(-100%); /* عند الإغلاق */
 }
 
 .sidebar h2 {
-  display: none;
-  /* إخفاء عنوان الشريط الجانبي */
+  display: none; /* إخفاء عنوان الشريط الجانبي */
 }
 
 .sidebar ul {
   list-style: none;
-  padding: 0;
+  padding-top: 10px;
   margin: 0;
-  width: 100%;
-  /* تعيين العرض الكامل لتناسب العناصر */
+  width: 100%; /* العرض الكامل */
+  flex-grow: 1; /* لتوسيع القائمة لملء المساحة المتاحة */
 }
 
 .sidebar ul li {
   border-radius: 28px;
-
-  padding: 15px 0;
-  /* حشو أعلى وأسفل */
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  padding: 1.5vh 0; /* تقليل الحشو إلى 1.5vh */
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.3s ease; /* إضافة تأثير الظل */
   display: flex;
   align-items: center;
-  justify-content: center;
-  /* توسيط العناصر أفقياً */
-  position: relative;
-  /* لتحديد موضع العناصر داخل */
+  justify-content: center; /* توسيط العناصر أفقياً */
+  position: relative; /* لتحديد موضع العناصر داخل */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* إضافة ظل خفيف */
 }
 
 .sidebar ul li:hover {
-  border-radius: 28px;
-  background-color: rgba(66, 68, 70, 0.534);
-  /* لون خلفية عند التمرير */
-  transform: scale(1.05);
-  /* تأثير تكبير طفيف عند التمرير */
+  background-color: rgba(66, 68, 70, 0.534); /* لون خلفية عند التمرير */
+  transform: scale(1.05); /* تأثير تكبير طفيف عند التمرير */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* زيادة الظل عند التمرير */
 }
 
 .sidebar ul li a {
-  color: #000000;
+  color: #000000; /* لون النص */
   text-decoration: none;
   display: flex;
   align-items: center;
-  width: 100%;
-  /* يضمن أن يكون نطاق النقر ممتدًا على العرض الكامل */
-  padding: 10px;
-  /* إضافة حشو حول الأيقونات والنص */
-  justify-content: center;
-  /* توسيط العناصر أفقياً */
-  box-sizing: border-box;
-  /* لضمان احتساب الحجم بشكل صحيح */
+  width: 100%; /* نطاق النقر يمتد على العرض الكامل */
+  padding: 5px; /* تقليل الحشو حول الأيقونات والنص */
+  justify-content: center; /* توسيط العناصر أفقياً */
+  box-sizing: border-box; /* لضمان احتساب الحجم بشكل صحيح */
 }
 
 .sidebar ul li a .sidebar-icon {
-
-  width: 26px;
-  /* تعيين عرض الأيقونات */
-  height: 26px;
-  /* تعيين ارتفاع الأيقونات */
-  fill: #000000;
-  /* لون الأيقونات */
+  width: 2vw; /* تقليل حجم الأيقونات إلى 2% من عرض الشاشة */
+  height: 2vw; /* تقليل ارتفاع الأيقونات إلى 2% من عرض الشاشة */
+  fill: #000000; /* لون الأيقونات */
   transition: fill 0.3s ease;
 }
 
-
-
+/* تعديل زر تسجيل الخروج ليكون مشابهًا للأزرار الأخرى */
 .sidebar .logout-button {
-  position: absolute;
-  bottom: 20px;
-  width: calc(100% - 20px);
-  /* عرض الزر، يترك مساحة جانبية صغيرة */
-  text-align: center;
-  padding: 10px;
-  background-color: #ce1100;
-  /* لون خلفية الزر */
- 
+  width: 72%; /* جعل عرض الزر مشابهًا لعرض العناصر الأخرى */
+  padding: 10px; /* زيادة الحشوة لجعله أكثر راحة */
+  background-color: #ce1100; /* لون خلفية الزر */
   border: none;
-  border-radius: 5px;
-  font-size: 0.9rem;
-  /* حجم الخط */
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  display: flex;
+  border-radius: 28px; /* نفس شكل الأزرار الأخرى */
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.3s ease; /* إضافة تأثير الظل */
   align-items: center;
-  justify-content: center;
-  /* توسيط العناصر أفقياً */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* إضافة ظل */
+  display: flex; /* لتوسيع نطاق النقر */
+  justify-content: center; /* توسيط العناصر أفقياً */
+  margin-top: auto; /* لجعل الزر يتحرك إلى الأسفل */
+  margin-bottom: 40px; /* إضافة حواف سفلية بمقدار 10 بيكسل */
 }
 
 .sidebar .logout-button .sidebar-icon {
-  width: 26px;
-  /* تعيين عرض الأيقونات */
-  height: 26px;
-  /* تعيين ارتفاع الأيقونات */
-  margin-right: 7px;
-  /* المسافة بين الأيقونة والنص */
-  /* لون الأيقونات */
+  width: 2vw; /* تقليل حجم الأيقونات إلى 3% من عرض الشاشة */
+  height: 3vw; /* تقليل ارتفاع الأيقونات إلى 3% من عرض الشاشة */
+  margin-right: 5px; /* تقليل المسافة بين الأيقونة والنص */
 }
 
 .sidebar .logout-button:hover {
-  background-color: #e64a19;
-  /* لون خلفية الزر عند التمرير */
-  transform: scale(1.05);
-  /* تأثير تكبير طفيف عند التمرير */
+  background-color: #e64a19; /* لون خلفية الزر عند التمرير */
+  transform: scale(1.05); /* تأثير تكبير طفيف عند التمرير */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* زيادة الظل عند التمرير */
 }
 
 .sidebar .logout-button:focus {
-  outline: none;
-  /* إزالة الحدود عند التركيز */
-  background-color: #d84315;
-  /* لون الخلفية عند التركيز */
+  outline: none; /* إزالة الحدود عند التركيز */
+  background-color: #d84315; /* لون الخلفية عند التركيز */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* ظلال خفيفة عند التركيز */
+}
+
+/* Media Queries لتصميم الشريط الجانبي على أحجام شاشات مختلفة */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 15vw; /* عرض أكبر قليلاً للشاشات الصغيرة */
+  }
+
+  .sidebar ul li {
+    padding: 3vh 0; /* زيادة الحشو قليلاً */
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 20vw; /* عرض أكبر للأجهزة المحمولة */
+  }
+
+  .sidebar .logout-button {
+    font-size: 0.7rem; /* تقليل حجم الخط */
+    padding: 5px; /* تقليل الحشو */
+  }
+
+  .sidebar ul li a .sidebar-icon {
+    width: 5vw; /* زيادة حجم الأيقونات قليلاً */
+    height: 5vw; /* زيادة ارتفاع الأيقونات قليلاً */
+  }
+}
+/* إضافة القاعدة التالية إلى ملف CSS الخاص بالشاشة الرئيسية */
+.main-content {
+  margin-left: 2px; /* إبعاد المحتوى بمقدار 2 بيكسل من الجانب الأيسر */
+  transition: margin-left 0.3s ease; /* إضافة انتقال سلس عند تغيير الهامش */
+}
+
+.sidebar.open + .main-content {
+  margin-left: 5vw; /* عند فتح الشريط الجانبي، اجعل الهامش 5vw أو أي قيمة تناسب تصميمك */
 }
