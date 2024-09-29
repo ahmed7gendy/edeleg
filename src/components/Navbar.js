@@ -13,13 +13,12 @@ import "./Navbar.css";
 
 const Navbar = ({ onSidebarToggle }) => {
   const [showNotifications, setShowNotifications] = useState(false);
-  const [unreadCountSender, setUnreadCountSender] = useState(0); // عدد الإشعارات الخاصة بالمرسل
-  const [unreadCountReceiver, setUnreadCountReceiver] = useState(0); // عدد الإشعارات الخاصة بالمستقبل
+  const [unreadCountSender, setUnreadCountSender] = useState(0);
+  const [unreadCountReceiver, setUnreadCountReceiver] = useState(0);
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const [userEmail, setUserEmail] = useState(null); // حالة لتخزين بريد المستخدم
+  const [userEmail, setUserEmail] = useState(null);
 
-  // جلب المستخدم الحالي
   const getCurrentUser = () => {
     return new Promise((resolve, reject) => {
       const auth = getAuth();
@@ -46,7 +45,6 @@ const Navbar = ({ onSidebarToggle }) => {
           if (notificationsSnapshot.exists()) {
             const notificationsData = notificationsSnapshot.val();
 
-            // فلترة الإشعارات التي قام المستخدم بإنشائها (المرسل) والتي لم تُقرأ
             const unreadSentNotifications = Object.values(
               notificationsData
             ).filter(
@@ -54,7 +52,6 @@ const Navbar = ({ onSidebarToggle }) => {
                 !notification.isRead && notification.createdBy === email
             );
 
-            // فلترة الإشعارات التي تم تعيينها للمستخدم (المستقبل) والتي لم تُقرأ
             const unreadReceivedNotifications = Object.values(
               notificationsData
             ).filter(
@@ -62,7 +59,6 @@ const Navbar = ({ onSidebarToggle }) => {
                 !notification.isRead && notification.assignedEmail === email
             );
 
-            // تحديث عدد الإشعارات غير المقروءة
             setUnreadCountSender(unreadSentNotifications.length);
             setUnreadCountReceiver(unreadReceivedNotifications.length);
           }
@@ -92,6 +88,8 @@ const Navbar = ({ onSidebarToggle }) => {
     }
   };
 
+  const totalUnreadCount = unreadCountSender + unreadCountReceiver;
+
   return (
     <nav className="navbar">
       <button className="menu-btn" onClick={onSidebarToggle}>
@@ -108,13 +106,8 @@ const Navbar = ({ onSidebarToggle }) => {
           className="notification-button"
         >
           <NotificationsIcon className="navbar-icon" />
-          {/* عرض عدد الإشعارات الخاصة بالمرسل */}
-          {unreadCountSender > 0 && (
-            <span className="notification-count">{`Sent: ${unreadCountSender}`}</span>
-          )}
-          {/* عرض عدد الإشعارات الخاصة بالمستقبل */}
-          {unreadCountReceiver > 0 && (
-            <span className="notification-count">{`Received: ${unreadCountReceiver}`}</span>
+          {totalUnreadCount > 0 && (
+            <span className="notification-count">{` ${totalUnreadCount}`}</span>
           )}
         </button>
 
