@@ -1,0 +1,195 @@
+.admin-page {
+  font-family: "Arial", sans-serif;
+  color: #333;
+  background-color: #f4f4f4;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color:#343a40;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 60px; /* المسافة بين الـ navbar والعناصر التالية */
+  flex-wrap: wrap; /* لجعل العناصر تلتف بشكل مناسب في الأجهزة الصغيرة */
+}
+
+.admin-header h1 {
+  color:#343a40;
+  margin: 0;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.open-popup-btn,
+.navigate-to-course-management-btn,
+.refresh-data-btn {
+  background-color: #107f85;
+  color: #ffffff;
+  padding: 10px 20px;
+  border: 2px solid #107f85;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  margin: 10px 0; /* إضافة هامش لتجنب التداخل في الشاشات الصغيرة */
+}
+
+.open-popup-btn:hover,
+.navigate-to-course-management-btn:hover,
+.refresh-data-btn:hover {
+  background-color: #0eadb6a2;
+  color: #fff;
+}
+
+.admin-page .main-content {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  gap: 20px;
+  flex-wrap: wrap; /* لضمان استجابة التخطيط في الأجهزة الصغيرة */
+}
+
+.user-list,
+.user-details {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  width: 45%; /* عرض كل قسم بنسبة 48% ليظهروا بجانب بعضهم */
+  max-width: 45%;
+}
+
+.user-list {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.user-item {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.user-item:hover {
+  background-color: #f0f0f0;
+}
+
+.user-details h2 {
+  margin-top: 0;
+  font-size: 22px;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.user-details p {
+  margin: 10px 0;
+}
+
+.user-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  flex-wrap: wrap; /* لجعل الأزرار تلتف في الشاشات الصغيرة */
+}
+
+.user-actions button {
+  height: 60px;
+  background-color: #d9534f;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+}
+
+.user-actions button:hover {
+  background-color: #c9302c;
+}
+
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 400px;
+}
+
+.popup-content h2 {
+  margin-top: 0;
+}
+
+.popup-content label {
+  display: block;
+  margin: 10px 0 5px;
+}
+
+.popup-content input,
+.popup-content select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.popup-content button {
+  margin-top: 15px;
+}
+.search-bar {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  margin-top: 80px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  outline: none;
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.search-input:focus {
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  border-color: #007bff;
+}
+
+.search-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-left: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: #0056b3;
+}
