@@ -1,0 +1,161 @@
+.add-task-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: 60px;
+  padding: 20px;
+  
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.add-task-container h1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+color: #000;  
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 60px;
+  flex-wrap: wrap;
+}
+
+.add-task-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.add-task-container label {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.add-task-container input[type="text"],
+.add-task-container input[type="email"],
+.add-task-container textarea {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border 0.3s ease;
+}
+
+.add-task-container textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.add-task-container .search-container {
+  display: flex;
+  justify-content: space-between; /* توزيع المساحة بين الحقول */
+  width: 50%; /* تأكد من أن الحاوية تأخذ 100% من عرض الصفحة */
+}
+
+.add-task-container .search-container > div {
+  flex: 1; /* كل عنصر سيأخذ حصة متساوية من المساحة */
+  margin-right: 10px; /* إضافة مسافة بين الحقول */
+}
+
+.add-task-container .search-container > div:last-child {
+  margin-right: 0; /* إزالة المسافة من العنصر الأخير */
+}
+
+.add-task-container .search-container input {
+  width: 100%; /* تأكد من أن الحقول تأخذ 100% من عرضها */
+}
+
+.add-task-container button[type="submit"] {
+  padding: 12px 20px;
+  background-color: #094d50;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.add-task-container button[type="submit"] :hover {
+  background-color: #118288;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.add-task-container button[disabled] {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.add-task-container .error {
+  color: #ff4d4f;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.add-task-container .success {
+  color: #28a745;
+  margin-top: 10px;
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .add-task-container {
+    padding: 15px;
+  }
+
+  .add-task-container h1 {
+    font-size: 24px;
+  }
+
+  .add-task-container button[type="submit"] {
+    font-size: 14px;
+  }
+}
+.add-task-container .search-container {
+  display: flex;
+  justify-content: space-between; /* توزيع المساحة بين الحقول */
+  width: 100%; /* تأكد من أن الحاوية تأخذ 100% من عرض الصفحة */
+}
+
+.add-task-container .search-field {
+  flex: 0 0 48%; /* كل حقل يأخذ 48% من العرض مع ترك مسافة بسيطة */
+  margin-right: 2%; /* إضافة مسافة بين الحقول */
+}
+
+.add-task-container .search-field:last-child {
+  margin-right: 0; /* إزالة المسافة من العنصر الأخير */
+}
+.remove-button {
+  background-color: transparent; /* خلفية شفافة */
+  border: none; /* إزالة الحدود */
+  color: rgb(0, 0, 0); /* لون النص */
+  font-size: 18px; /* حجم الخط */
+  cursor: pointer; /* تغيير شكل المؤشر عند المرور فوق الزر */
+  padding: 0; /* إزالة الحشوة */
+  margin-left: 10px; /* إضافة مسافة بين الزر والنص */
+}
+
+.add-task-container.remove-button:hover {
+  color: rgb(0, 0, 0); /* تغيير لون النص عند المرور */
+  transform: scale(1.1); /* زيادة حجم الزر قليلاً */
+  transition: color 0.3s, transform 0.3s; /* إضافة تأثير انتقال */
+}
+input#message {
+  width: 100%;
+  height: 60px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  box-sizing: border-box; /* لضمان أن padding يحسب داخل العرض */
+  margin-top: 5px; /* مسافة بين التسمية و input */
+  transition: border-color 0.3s ease; /* تأثير انتقالي عند التفاعل مع الحقل */
+}
+
+input#message:focus {
+  border-color: #4caf50; /* تغيير اللون عند التركيز */
+  outline: none; /* إزالة الإطار الأزرق الافتراضي */
+}
