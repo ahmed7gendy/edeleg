@@ -8,6 +8,9 @@ import { ReactComponent as AdminIcon } from "../photos/user-add-outlined.svg";
 import { ReactComponent as AddTaskIcon } from "../photos/add task.svg";
 import { ReactComponent as ArchiveIcon } from "../photos/archive-down-svgrepo-com.svg";
 import { ReactComponent as DepartmentIcon } from "../photos/open-data-square.svg"; // تأكد من وجود أيقونة للقسم
+import { ReactComponent as EmailFormIcon } from "../photos/email-essential-letter-svgrepo-com.svg"; // تأكد من وجود أيقونة للقسم
+import { ReactComponent as BulkUserUpload } from "../photos/upload-svgrepo-com.svg"; // تأكد من وجود أيقونة للقسم
+
 import "./Sidebar.css";
 
 function Sidebar({ isOpen, onClose }) {
@@ -87,15 +90,33 @@ function Sidebar({ isOpen, onClose }) {
         )}
         {/* يظهر رابط قسم إدارة الأقسام فقط إذا كان المستخدم سوبر أدمن */}
         {isSuperAdmin && (
-          <li>
-            <Link
-              to="/department-management"
-              onClick={onClose}
-              title="Department Management"
-            >
-              <DepartmentIcon className="sidebar-icon" />
-            </Link>
-          </li>
+          <>
+            <li>
+              <Link to="/Email-Form" onClick={onClose} title="Email Form">
+                <EmailFormIcon className="sidebar-icon" />
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/BulkUser-Upload"
+                onClick={onClose}
+                title="BulkUserUpload"
+              >
+                <BulkUserUpload className="sidebar-icon" />
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/department-management"
+                onClick={onClose}
+                title="Department Management"
+              >
+                <DepartmentIcon className="sidebar-icon" />
+              </Link>
+            </li>
+          </>
         )}
       </ul>
     </div>
